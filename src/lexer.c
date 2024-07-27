@@ -2,11 +2,12 @@
 #include <string.h>
 #include <ctype.h>
 #include "include/lexer.h"
+#include <stdio.h>
 
 lexer_T* initLexer(char* contents) {
   lexer_T* lexer = calloc(1, sizeof(struct LEXER_STRUCT));
   lexer->contents = contents;
-  lexer->i = 9;
+  lexer->i = 0;
   lexer->c = contents[lexer->i];
 
   return lexer;
@@ -77,6 +78,9 @@ token_T* lexerCollectString(lexer_T* lexer) {
 		lexerAdvance(lexer);
   }
 
+  // Move past the final "
+  lexerAdvance(lexer);
+
 	return initToken(TOKEN_STRING, value);
 }
 
@@ -95,9 +99,6 @@ token_T* lexerCollectID(lexer_T* lexer) {
 		// WE WILL NOT STOP UNTIL OUR KINGDOM IS VICTORIOUS!
 		lexerAdvance(lexer);
   }
-  
-  // Move past the final "
-  lexerAdvance(lexer);
 
 	return initToken(TOKEN_ID, value);
 }
