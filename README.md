@@ -40,30 +40,49 @@ Before you begin, ensure you have met the following requirements:
     ```sh
     cd CSach
     ```
-3. \
-    a) Compile the project locally
+3. Compile the project\
+    a) Locally
     ```sh
     make
     ```
 
     or
 
-    b) Compile the project for system-wide use
+    b) System-wide
     ```sh
     sudo make install
     ```
-4. \
-    a) Run the interpreter locally
+ 
+4. Run the interpreter\
+    a) With local use
     ```sh
     ./csach.out <filePath>
     ```
     or
 
-    b) Run the interpreter with system-wide use
+    b) With system-wide use
     ```sh
     csach <filePath>
+
+5. The optional step to uninstall\
+    a) Locally
+    ```sh
+    cd ..
+    rm -rf CSach
+    ```
+    or
+
+    b) System-wide
+    ```sh
+    sudo make uninstall
     ```
     
+    or
+    
+    c) System-wide without the CSach Makefile
+    ```sh
+    sudo rm /usr/local/bin/csach
+    ```
 \
 **Windows**
 1. Clone the repository
@@ -91,11 +110,17 @@ Before you begin, ensure you have met the following requirements:
     ```cmd
     csach.exe <filePath>
     ```
+
+5. The optional step to uninstall
+    ```cmd
+    cd ..
+    rmdir /s CSach
+    ```
     
 
 ## Examples
 
-Here's an example of how to use the current features:
+Here's an example of how to use the current features
 
 ```
 let name = "Sachkeerat Singh Brar";
