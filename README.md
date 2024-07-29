@@ -28,7 +28,8 @@ This project is designed to help me (and potentially others) learn the fundament
 Before you begin, ensure you have met the following requirements:
 
 - You have a C compiler installed (e.g., `gcc`, `clang`).
-- You have `sudo` and `make` installed for Unix-like systems.
+- You have `make` installed.
+- You have `sudo` installed for Unix-like systems.
 
 ### Usage
 **Unix-like Systems (Linux, macOS)**
@@ -84,39 +85,8 @@ Before you begin, ensure you have met the following requirements:
     sudo rm /usr/local/bin/csach
     ```
 \
-**Windows**
-1. Clone the repository
-    ```cmd
-    git clone https://github.com/sachkeeratb/CSach.git
-    ```
-2. Navigate to the project directory:
-    ```cmd
-    cd CSach
-    ```
-3. \
-    a) Compile the project using `gcc`
-    ```cmd
-   gcc -o csach.exe main.c
-   ```
-
-    or
-
-    b) Compile the project using `clang`
-    ```cmd
-    clang -o csach.exe main.c
-    ```
-
-4. Run the interpreter
-    ```cmd
-    csach.exe <filePath>
-    ```
-
-5. The optional step to uninstall
-    ```cmd
-    cd ..
-    rmdir /s CSach
-    ```
-    
+**Windows**\
+TODO
 
 ## Examples
 
