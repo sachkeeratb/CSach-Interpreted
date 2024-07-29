@@ -1,18 +1,21 @@
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
 #include "include/parser.h"
 
 parser_T* initParser(lexer_T* lexer) {
   parser_T* parser = calloc(1, sizeof(struct PARSER_STRUCT));
   parser->lexer = lexer;
   parser->currentToken = lexerGetNextToken(lexer);
+  parser->prevToken = parser->currentToken;
 
   return parser;
 }
 
 void parserEat(parser_T* parser, int tokenType) {
-  if (parser->currentToken->type == tokenType)
+  if (parser->currentToken->type == tokenType) {
+    parser->prevToken = parser->currentToken;
     parser->currentToken = lexerGetNextToken(parser->lexer);
+  }
   else {
     printf(
       "Unexpected token `%s` with type %d\n", parser->currentToken->val, 
@@ -59,7 +62,10 @@ AST_T* parserParseStatements(parser_T* parser) {
 AST_T* parserParseExpression(parser_T* parser) {
   switch (parser->currentToken->type) {
     case TOKEN_STRING: return parserParseString(parser); break;
+    case TOKEN_ID: return parserParseID(parser); break;
   }
+
+  printf("%d\n", parser->currentToken->type);
 }
 
 AST_T* parserParseFactor(parser_T* parser) {
@@ -71,7 +77,32 @@ AST_T* parserParseTerm(parser_T* parser) {
 }
 
 AST_T* parserParseFuncCall(parser_T* parser) {
+  AST_T* funcCall = initAST(AST_FUNCTION_CALL);
+  parserEat(parser, TOKEN_LPAREN); // function name
+  funcCall->funcCallName = parser->prevToken->val;
+
+  funcCall->funcCallArgs = calloc(1, sizeof(struct AST_STRUCT));
   
+  AST_T* expression = parserParseExpression(parser);
+  funcCall->funcCallArgs[0] = expression;
+
+  while(parser->currentToken->type == TOKEN_COMMA) {
+    parserEat(parser, TOKEN_COMMA);
+
+    AST_T* expression = parserParseExpression(parser);
+    funcCall->funcCallArgsSize += 1;
+    
+    funcCall->funcCallArgs = realloc(
+      funcCall->funcCallArgs, 
+      (funcCall->funcCallArgsSize + 1) * sizeof(struct AST_STRUCT)
+    );
+
+    funcCall->funcCallArgs[funcCall->funcCallArgsSize - 1] = expression;
+  }
+
+  parserEat(parser, TOKEN_RPAREN);
+
+  return funcCall;
 }
 
 AST_T* parserParseVarDef(parser_T* parser) {

@@ -41,22 +41,19 @@ token_T* lexerGetNextToken(lexer_T* lexer) {
     
     switch (lexer->c) {
       case '=':
-        return lexerAdvanceWithToken(lexer, initToken(TOKEN_EQUALS, lexerGetCurrentCharAsString(lexer)));
-        break;
-
+        return lexerAdvanceWithToken(lexer, initToken(TOKEN_EQUALS, lexerGetCurrentCharAsString(lexer))); break;
       case ';':
-        return lexerAdvanceWithToken(lexer, initToken(TOKEN_SEMI, lexerGetCurrentCharAsString(lexer)));
-        break;
+        return lexerAdvanceWithToken(lexer, initToken(TOKEN_SEMI, lexerGetCurrentCharAsString(lexer))); break;
       case '(':
-        return lexerAdvanceWithToken(lexer, initToken(TOKEN_LPAREN, lexerGetCurrentCharAsString(lexer)));
-        break;
+        return lexerAdvanceWithToken(lexer, initToken(TOKEN_LPAREN, lexerGetCurrentCharAsString(lexer))); break;
       case ')':
-        return lexerAdvanceWithToken(lexer, initToken(TOKEN_RPAREN, lexerGetCurrentCharAsString(lexer)));
-        break;
+        return lexerAdvanceWithToken(lexer, initToken(TOKEN_RPAREN, lexerGetCurrentCharAsString(lexer))); break;
+      case 'm':
+        return lexerAdvanceWithToken(lexer, initToken(TOKEN_COMMA, lexerGetCurrentCharAsString(lexer))); break;
     }
   }
 
-	return (void*) 0;
+	return initToken(TOKEN_EOF, "\0");
 }
 
 token_T* lexerCollectString(lexer_T* lexer) {
