@@ -26,8 +26,8 @@ This project is designed to help me (and potentially others) learn the fundament
 
 Before you begin, ensure you have met the following requirements:
 
-- You have a C compiler installed (e.g., ```gcc```, ```clang```).
-- You have ```make``` installed for Unix-like systems.
+- You have a C compiler installed (e.g., `gcc`, `clang`).
+- You have `sudo` and `make` installed for Unix-like systems.
 
 ### Usage
 **Unix-like Systems (Linux, macOS)**
