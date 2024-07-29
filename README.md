@@ -1,4 +1,5 @@
-    b) Run the interpreter with system-wide use:
+# CSach
+## Sachkeerat Singh Brar's Custom Programming Language
 
 Welcome to the repository of my custom programming language! This project is a personal endeavor to learn and explore the C programming language (hence the name is C + Sach) by developing a new programming language from scratch. Inspired by [Ianertson's YouTube tutorials](https://www.youtube.com/@helloworldcode), this project serves a way for me to learn C in a creative way.
 
@@ -73,10 +74,19 @@ Before you begin, ensure you have met the following requirements:
     ```cmd
     cd CSach
     ```
-3. Compile the project using ```gcc```
+3. \
+    a) Compile the project using `gcc`
     ```cmd
    gcc -o csach.exe main.c
    ```
+
+    or
+
+    b) Compile the project using `clang`
+    ```cmd
+    clang -o csach.exe main.c
+    ```
+
 4. Run the interpreter
     ```cmd
     csach.exe <filePath>
