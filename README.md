@@ -1,4 +1,4 @@
-# CSach: My Custom Programming Language
+    b) Run the interpreter with system-wide use:
 
 Welcome to the repository of my custom programming language! This project is a personal endeavor to learn and explore the C programming language (hence the name is C + Sach) by developing a new programming language from scratch. Inspired by [Ianertson's YouTube tutorials](https://www.youtube.com/@helloworldcode), this project serves a way for me to learn C in a creative way.
 
@@ -27,12 +27,62 @@ This project is designed to help me (and potentially others) learn the fundament
 Before you begin, ensure you have met the following requirements:
 
 - You have a C compiler installed (e.g., ```gcc```, ```clang```).
-- You have ```make``` installed.
+- You have ```make``` installed for Unix-like systems.
+- You have `MinGw` installed for Windows systems.
 
 ### Usage
+**Unix-like Systems (Linux, macOS)**
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/sachkeeratb/CSach.git
+    ```
+2. Navigate to the project directory:
+    ```sh
+    cd CSach
+    ```
+3. \
+    a) Compile the project locally:
+    ```sh
+    make
+    ```
 
-Due to this project being in its early stages, steps are currently not provided to install and run this programming language. \
-This will be completed soon.
+    or
+
+    b) Compile the project for system-wide use:
+    ```sh
+    sudo make install
+    ```
+4. \
+    a) Run the interpreter locally:
+    ```sh
+    ./csach.out <filePath>
+    ```
+    or
+
+    b) Run the interpreter with system-wide use:
+    ```sh
+    csach <filePath>
+    ```
+    
+\
+**Windows**
+1. Clone the repository:
+    ```cmd
+    git clone https://github.com/sachkeeratb/CSach.git
+    ```
+2. Navigate to the project directory:
+    ```cmd
+    cd CSach
+    ```
+3. Compile the project using ```gcc``` (make sure ``MinGW`` is installed)::
+    ```cmd
+   gcc -o csach.exe main.c
+   ```
+4. Run the interpreter:
+    ```cmd
+    csach.exe <filePath>
+    ```
+    
 
 ## Examples
 
@@ -40,7 +90,13 @@ Here's an example of how to use the current features:
 
 ```
 let name = "Sachkeerat Singh Brar";
-print(name);
+let otherName = "Other Name";
+print(name, otherName);
+```
+Output:
+```
+Sachkeerat Singh Brar
+Other Name
 ```
 
 ## Acknowledgements

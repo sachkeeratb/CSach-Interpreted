@@ -5,7 +5,9 @@
 #include "include/io.h"
 
 void printHelp() {
-  printf("Usage: ./csach.out <file>\n");
+  printf(
+    "Local usage: ./csach.out <filePath>\nSystem-wide usage: csach <filePath>\n"
+    );
   exit(1);
 }
 
