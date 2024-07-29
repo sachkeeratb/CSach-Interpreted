@@ -13,6 +13,9 @@ install:
 	make
 	cp ./csach.out /usr/local/bin/csach
 
+uninstall:
+	rm /usr/local/bin/csach
+
 clean:
 	-rm *.out
 	-rm *.objects
