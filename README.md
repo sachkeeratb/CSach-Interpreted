@@ -28,45 +28,44 @@ Before you begin, ensure you have met the following requirements:
 
 - You have a C compiler installed (e.g., ```gcc```, ```clang```).
 - You have ```make``` installed for Unix-like systems.
-- You have `MinGw` installed for Windows systems.
 
 ### Usage
 **Unix-like Systems (Linux, macOS)**
-1. Clone the repository:
+1. Clone the repository
     ```sh
     git clone https://github.com/sachkeeratb/CSach.git
     ```
-2. Navigate to the project directory:
+2. Navigate to the project directory
     ```sh
     cd CSach
     ```
 3. \
-    a) Compile the project locally:
+    a) Compile the project locally
     ```sh
     make
     ```
 
     or
 
-    b) Compile the project for system-wide use:
+    b) Compile the project for system-wide use
     ```sh
     sudo make install
     ```
 4. \
-    a) Run the interpreter locally:
+    a) Run the interpreter locally
     ```sh
     ./csach.out <filePath>
     ```
     or
 
-    b) Run the interpreter with system-wide use:
+    b) Run the interpreter with system-wide use
     ```sh
     csach <filePath>
     ```
     
 \
 **Windows**
-1. Clone the repository:
+1. Clone the repository
     ```cmd
     git clone https://github.com/sachkeeratb/CSach.git
     ```
@@ -74,11 +73,11 @@ Before you begin, ensure you have met the following requirements:
     ```cmd
     cd CSach
     ```
-3. Compile the project using ```gcc``` (make sure ``MinGW`` is installed)::
+3. Compile the project using ```gcc```
     ```cmd
    gcc -o csach.exe main.c
    ```
-4. Run the interpreter:
+4. Run the interpreter
     ```cmd
     csach.exe <filePath>
     ```
