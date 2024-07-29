@@ -1,6 +1,6 @@
 # CSach: My Custom Programming Language
 
-Welcome to the repository of my custom programming language! This project is a personal endeavor to learn and explore the C programming language (hence the name is C + Sach) by developing a new programming language from scratch. Inspired by [Lanertson's YouTube tutorials](https://www.youtube.com/@helloworldcode), this project serves a way for me to learn C in a creative way.
+Welcome to the repository of my custom programming language! This project is a personal endeavor to learn and explore the C programming language (hence the name is C + Sach) by developing a new programming language from scratch. Inspired by [Ianertson's YouTube tutorials](https://www.youtube.com/@helloworldcode), this project serves a way for me to learn C in a creative way.
 
 ## Table of Contents
 
@@ -44,4 +44,4 @@ print(name);
 ```
 
 ## Acknowledgements
-Special thanks to [Lanertson](https://www.youtube.com/@helloworldcode) for the amazing tutorial series that inspired this project.
+Special thanks to [Ianertson](https://www.youtube.com/@helloworldcode) for the amazing tutorial series that inspired this project.
