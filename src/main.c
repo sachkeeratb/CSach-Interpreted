@@ -2,12 +2,19 @@
 #include "include/lexer.h"
 #include "include/parser.h"
 #include "include/visitor.h"
+#include "include/io.h"
+
+void printHelp() {
+  printf("Usage: ./csach.out <file>\n");
+  exit(1);
+}
 
 int main(int argc, char* argv[]) {
+  if (argc < 2) 
+    printHelp();
+
   lexer_T* lexer = initLexer(
-    "let name = \"Sachkeerat Singh Brar\";\n"
-    "let othername = \"other name\";\n"
-    "print(name, othername);\n"
+    getFileContents(argv[1])
   );
 
 	parser_T* parser = initParser(lexer);
