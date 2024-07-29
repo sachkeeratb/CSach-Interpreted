@@ -2,7 +2,6 @@
 #include <string.h>
 #include <ctype.h>
 #include "include/lexer.h"
-#include <stdio.h>
 
 lexer_T* initLexer(char* contents) {
   lexer_T* lexer = calloc(1, sizeof(struct LEXER_STRUCT));
@@ -72,7 +71,7 @@ token_T* lexerCollectString(lexer_T* lexer) {
     value = realloc(value, (strlen(value) + strlen(s) + 1) * sizeof(char));
 
     // Append 
-    strcat(value, s);
+    strlcat(value, s, strlen(value) + strlen(s) + 1);
 
 		// Advance to the next character
 		lexerAdvance(lexer);
@@ -93,7 +92,7 @@ token_T* lexerCollectID(lexer_T* lexer) {
     value = realloc(value, (strlen(value) + strlen(s) + 1) * sizeof(char));
 
     // Append 
-    strcat(value, s);
+    strlcat(value, s, strlen(value) + strlen(s) + 1);
 
 		// CHARGE!!! ATTACK THE NEXT CHARACTER!
 		// WE WILL NOT STOP UNTIL OUR KINGDOM IS VICTORIOUS!

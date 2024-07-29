@@ -1,6 +1,5 @@
 #ifndef LEXER_H
 #define LEXER_H
-
 #include "token.h"
 
 typedef struct LEXER_STRUCT {
@@ -24,6 +23,5 @@ token_T* lexerCollectID(lexer_T* lexer);
 token_T* lexerAdvanceWithToken(lexer_T* lexer, token_T* token);
 
 char* lexerGetCurrentCharAsString(lexer_T* lexer);
-
 
 #endif

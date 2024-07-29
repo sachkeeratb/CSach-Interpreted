@@ -11,9 +11,9 @@ typedef struct TOKEN_STRUCT {
 		TOKEN_RPAREN
   } type;
 
-	char* value;
+	char* val;
 } token_T;
 
-token_T* initToken(int type, char* value);
+token_T* initToken(int type, char* val);
 
 #endif
