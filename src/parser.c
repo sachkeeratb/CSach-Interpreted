@@ -33,6 +33,8 @@ AST_T* parserParseStatement(parser_T* parser) {
   switch (parser->currentToken->type) {
     case TOKEN_ID: return parserParseID(parser); break;
   }
+
+  return initAST(AST_NOOP);
 }
 
 AST_T* parserParseStatements(parser_T* parser) {
@@ -41,19 +43,22 @@ AST_T* parserParseStatements(parser_T* parser) {
   
   AST_T* statement = parserParseStatement(parser);
   compound->compoundVal[0] = statement;
+  compound->compoundSize += 1;
 
   while(parser->currentToken->type == TOKEN_SEMI) {
     parserEat(parser, TOKEN_SEMI);
 
     AST_T* statement = parserParseStatement(parser);
-    compound->compoundSize += 1;
-    
-    compound->compoundVal = realloc(
-      compound->compoundVal, 
-      (compound->compoundSize + 1) * sizeof(struct AST_STRUCT)
-    );
 
-    compound->compoundVal[compound->compoundSize - 1] = statement;
+    if (statement) {
+      compound->compoundSize += 1;    
+      compound->compoundVal = realloc(
+        compound->compoundVal, 
+        (compound->compoundSize + 1) * sizeof(struct AST_STRUCT)
+      );
+
+      compound->compoundVal[compound->compoundSize - 1] = statement;
+    }
   }
 
   return compound;
@@ -65,7 +70,7 @@ AST_T* parserParseExpression(parser_T* parser) {
     case TOKEN_ID: return parserParseID(parser); break;
   }
 
-  printf("%d\n", parser->currentToken->type);
+  return initAST(AST_NOOP);
 }
 
 AST_T* parserParseFactor(parser_T* parser) {
@@ -78,13 +83,15 @@ AST_T* parserParseTerm(parser_T* parser) {
 
 AST_T* parserParseFuncCall(parser_T* parser) {
   AST_T* funcCall = initAST(AST_FUNCTION_CALL);
-  parserEat(parser, TOKEN_LPAREN); // function name
   funcCall->funcCallName = parser->prevToken->val;
+
+  parserEat(parser, TOKEN_LPAREN);
 
   funcCall->funcCallArgs = calloc(1, sizeof(struct AST_STRUCT));
   
   AST_T* expression = parserParseExpression(parser);
   funcCall->funcCallArgs[0] = expression;
+  funcCall->funcCallArgsSize += 1;
 
   while(parser->currentToken->type == TOKEN_COMMA) {
     parserEat(parser, TOKEN_COMMA);
