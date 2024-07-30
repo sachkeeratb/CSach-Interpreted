@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
   );
 
 	parser_T* parser = initParser(lexer);
-  AST_T* root = parserParse(parser);
+  AST_T* root = parserParse(parser, parser->scope);
   visitor_T* visitor = initVisitor();
 
   visit(visitor, root);

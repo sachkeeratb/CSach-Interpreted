@@ -15,6 +15,8 @@ AST_T* visitVarDef(visitor_T* visitor, AST_T* node);
 
 AST_T* visitVar(visitor_T* visitor, AST_T* node);
 
+AST_T* visitFuncDef(visitor_T* visitor, AST_T* node);
+
 AST_T* visitFuncCall(visitor_T* visitor, AST_T* node);
 
 AST_T* visitString(visitor_T* visitor, AST_T* node);

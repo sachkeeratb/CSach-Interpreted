@@ -6,11 +6,14 @@ typedef struct AST_STRUCT {
   enum {
     AST_VARIABLE_DEFINITION,
     AST_VARIABLE,
+    AST_FUNCTION_DEFINITION,
     AST_FUNCTION_CALL,
     AST_STRING,
     AST_COMPOUND,
     AST_NOOP
   } type;
+
+  struct SCOPE_STRUCT* scope;
 
   // For variable definition
   char* varDefVarName;
@@ -19,6 +22,10 @@ typedef struct AST_STRUCT {
   // For variable reference
   char* varName;
   struct AST_STRUCT* varVal;
+
+  // For function definition
+  char* funcDefName;
+  struct AST_STRUCT* funcDefBody;
 
   // For function call
   char* funcCallName;

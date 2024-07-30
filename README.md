@@ -19,7 +19,8 @@ This project is designed to help me (and potentially others) learn the fundament
 
 ## Features
 
-- **Variable Declaration and Printing**: Currently, you can create variables and print their values.
+- **Variable Declaration and Printing**: You can create variables and print their values.
+- **Function Declaration and Calling**: You can create your own functions and call them.
 
 ## Getting Started
 
@@ -94,11 +95,19 @@ Here's an example of how to use the current features
 
 ```
 let name = "Sachkeerat Singh Brar";
-let otherName = "Other Name";
-print(name, otherName);
+
+func doSomething() {
+  let otherName = "Other Name";
+  print(name, otherName);
+};
+
+doSomething();
+doSomething();
 ```
 Output:
 ```
+Sachkeerat Singh Brar
+Other Name
 Sachkeerat Singh Brar
 Other Name
 ```

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "include/visitor.h"
+#include "include/scope.h"
 
 static AST_T* builtinFuncPrint(visitor_T* visitor, AST_T** args, int argsSize) {
   for (int i = 0; i < argsSize; i++) {
@@ -17,8 +18,6 @@ static AST_T* builtinFuncPrint(visitor_T* visitor, AST_T** args, int argsSize) {
 
 visitor_T* initVisitor() {
   visitor_T* visitor = calloc(1, sizeof(struct VISITOR_STRUCT));
-  visitor->varDefs = (void*) 0;
-  visitor->varDefsSize = 0;
 
   return visitor;
 }
@@ -27,6 +26,7 @@ AST_T* visit(visitor_T* visitor, AST_T* node) {
   switch (node->type) {
     case AST_VARIABLE_DEFINITION: return visitVarDef(visitor, node); break;
     case AST_VARIABLE: return visitVar(visitor, node); break;
+    case AST_FUNCTION_DEFINITION: return visitFuncDef(visitor, node); break;
     case AST_FUNCTION_CALL: return visitFuncCall(visitor, node); break;
     case AST_STRING: return visitString(visitor, node); break;
     case AST_COMPOUND: return visitCompound(visitor, node); break;
@@ -69,10 +69,19 @@ AST_T* visitVar(visitor_T* visitor, AST_T* node) {
   return node;
 }
 
+AST_T* visitFuncDef(visitor_T* visitor, AST_T* node) {
+  scopeAddFuncDef(node->scope, node);
+}
+
 AST_T* visitFuncCall(visitor_T* visitor, AST_T* node) {
   if(strcmp(node->funcCallName, "print") == 0)
     return builtinFuncPrint(visitor, node->funcCallArgs, node->funcCallArgsSize);
   
+  AST_T* funcDef = scopeGetFuncDef(node->scope, node->funcCallName);
+
+  if (funcDef != (void*) 0)
+    return visit(visitor, funcDef->funcDefBody);
+
   printf("Undefined function call of `%s`\n", node->funcCallName);
   exit(1);
 }
