@@ -2,12 +2,13 @@ exec = csach.out
 sources = $(wildcard src/*.c)
 objects = $(sources:.c=.o)
 flags = -g
+CC = $(shell command -v gcc >/dev/null 2>&1 && echo "gcc" || echo "clang")
 
 $(exec): $(objects)
-	gcc $(objects) $(flags) -o $(exec)
+	$(CC) $(objects) $(flags) -o $(exec)
 
 %.o: %.c include/%.h
-	gcc -c $(flags) $< -o $@
+	$(CC) -c $(flags) $< -o $@
 
 install:
 	make
