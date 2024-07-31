@@ -94,22 +94,20 @@ TODO
 Here's an example of how to use the current features
 
 ```
-let name = "Sachkeerat Singh Brar";
+let statement = "Nice names!";
 
-func doSomething() {
-  let otherName = "Other Name";
-  print(name, otherName);
+func doSomething(name1, name2) {
+  print(name1, name2, statement);
 };
 
-doSomething();
-doSomething();
+doSomething("Sachkeerat", "Other Name");
 ```
 Output:
 ```
-Sachkeerat Singh Brar
+Sachkeerat
 Other Name
-Sachkeerat Singh Brar
-Other Name
+Nice names!
+
 ```
 
 ## Acknowledgements
