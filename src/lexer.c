@@ -12,7 +12,7 @@ lexer_T* initLexer(char* contents) {
 }
 
 void lexerAdvance(lexer_T* lexer) {
-  if ((lexer->c != '\0') && (lexer->i < strlen(lexer-> contents))) {
+  if ((lexer->c != '\0') && (lexer->i < strlen(lexer->contents))) {
     lexer->i += 1;
     lexer->c = lexer->contents[lexer->i];
   }

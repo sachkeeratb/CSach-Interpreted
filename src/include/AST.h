@@ -25,6 +25,8 @@ typedef struct AST_STRUCT {
 
   // For function definition
   char* funcDefName;
+  struct AST_STRUCT** funcDefArgs;
+  size_t funcDefArgsSize;
   struct AST_STRUCT* funcDefBody;
 
   // For function call

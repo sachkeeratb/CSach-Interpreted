@@ -12,7 +12,7 @@ void printHelp() {
 }
 
 int main(int argc, char* argv[]) {
-  if (argc < 2) 
+  if (argc != 2) 
     printHelp();
 
   lexer_T* lexer = initLexer(

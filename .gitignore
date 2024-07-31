@@ -1,0 +1,9 @@
+# Folders
+.vscode/
+.git/
+
+# Object files
+*.o
+
+# Executables
+*.out

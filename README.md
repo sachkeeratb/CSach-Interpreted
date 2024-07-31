@@ -20,7 +20,7 @@ This project is designed to help me (and potentially others) learn the fundament
 ## Features
 
 - **Variable Declaration and Printing**: You can create variables and print their values.
-- **Function Declaration and Calling**: You can create your own functions and call them.
+- **Function Declaration and Calling**: You can create your own functions with custom arguments and call them in their scope.
 
 ## Getting Started
 
@@ -28,7 +28,7 @@ This project is designed to help me (and potentially others) learn the fundament
 
 Before you begin, ensure you have met the following requirements:
 
-- You have a C compiler installed (e.g., `gcc`, `clang`).
+- You have a C compiler installed (`gcc` or `clang`).
 - You have `make` installed.
 - You have `sudo` installed for Unix-like systems.
 
