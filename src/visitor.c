@@ -5,13 +5,46 @@
 #include "include/scope.h"
 
 static AST_T* builtinFuncPrint(visitor_T* visitor, AST_T** args, int argsSize) {
-  for (int i = 0; i < argsSize; i++) {
+  int i = 0;
+  while (i < argsSize - 1) {
     AST_T* visited = visit(visitor, args[i]);
     switch (visited->type) {
-      case AST_STRING: printf("%s\n", visited->stringVal); break;
+      case AST_STRING: printf("%s ", visited->stringVal); break;
     
-      default: printf("%p\n", visited); break;
+      default: printf("%p ", visited); break;
     }
+
+    i++;
+  }
+
+  AST_T* visited = visit(visitor, args[i]);
+  switch (visited->type) {
+    case AST_STRING: printf("%s", visited->stringVal); break;
+    
+    default: printf("%p", visited); break;
+  }
+
+  return initAST(AST_NOOP);
+}
+
+static AST_T* builtinFuncPrintln(visitor_T* visitor, AST_T** args, int argsSize) {
+  int i = 0;
+  while (i < argsSize - 1) {
+    AST_T* visited = visit(visitor, args[i]);
+    switch (visited->type) {
+      case AST_STRING: printf("%s ", visited->stringVal); break;
+    
+      default: printf("%p ", visited); break;
+    }
+
+    i++;
+  }
+
+  AST_T* visited = visit(visitor, args[i]);
+  switch (visited->type) {
+    case AST_STRING: printf("%s\n", visited->stringVal); break;
+    
+    default: printf("%p\n", visited); break;
   }
 
   return initAST(AST_NOOP);
@@ -81,6 +114,8 @@ AST_T* visitFuncCall(visitor_T* visitor, AST_T* node) {
   // Built-in functions
   if(strcmp(node->funcCallName, "print") == 0)
     return builtinFuncPrint(visitor, node->funcCallArgs, node->funcCallArgsSize);
+  if(strcmp(node->funcCallName, "println") == 0)
+    return builtinFuncPrintln(visitor, node->funcCallArgs, node->funcCallArgsSize);
 
   if (strcmp(node->funcCallName, "clear") == 0)
     return builtinFuncClear(visitor, node->funcCallArgs, node->funcCallArgsSize);

@@ -2,7 +2,7 @@ let name = "Sachkeerat Singh Brar";
 
 func doSomething() {
   let otherName = "Other Name";
-  print(name, otherName);
+  println(name, otherName);
 };
 
 doSomething();

@@ -1,0 +1,10 @@
+let greeting = "Hello,";
+let world = "world!";
+
+func main(){
+  println(greeting, world);
+  let statement = "Nice to meet you!";
+  print(statement);
+};
+
+main();

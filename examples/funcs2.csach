@@ -1,7 +1,8 @@
 let statement = "Nice names!";
 
 func doSomething(name1, name2) {
-  print(name1, name2, statement);
+  println(name1, name2);
+  print(statement);
 };
 
 doSomething("Sachkeerat", "Other Name");
