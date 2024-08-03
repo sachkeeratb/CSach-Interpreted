@@ -1,60 +1,69 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "include/parser.h"
 #include "include/scope.h"
 
 parser_T* initParser(lexer_T* lexer) {
-  parser_T* parser = calloc(1, sizeof(struct PARSER_STRUCT));
-  parser->lexer = lexer;
-  parser->currentToken = lexerGetNextToken(lexer);
-  parser->prevToken = parser->currentToken;
-  parser->scope = initScope();
+  parser_T* parser = calloc(1, sizeof(struct PARSER_STRUCT)); // Allocate memory for the parser
+  parser->lexer = lexer; // Set the lexer of the parser
+  parser->currentToken = getNextToken(lexer); // Set the current token of the parser
+  parser->prevToken = parser->currentToken; // Set the previous token of the parser
+  parser->scope = initScope(); // Set the scope of the parser
 
   return parser;
 }
 
-void parserEat(parser_T* parser, int tokenType) {
-  if (parser->currentToken->type == tokenType) {
-    parser->prevToken = parser->currentToken;
-    parser->currentToken = lexerGetNextToken(parser->lexer);
-  }
-  else {
+void eat(parser_T* parser, int tokenType) {
+  // Check if the current token is of the correct type
+  if (parser->currentToken->type != tokenType) {
     printf(
       "Unexpected token `%s` with type %d\n", parser->currentToken->val, 
       parser->currentToken->type
     );
+    printf(
+      "Expected token with type %d\n", tokenType
+    );
     exit(1);
   }
+
+  // Set the previous token to the current token and advance the current token
+  parser->prevToken = parser->currentToken;
+  parser->currentToken = getNextToken(parser->lexer);
 }
 
-AST_T* parserParse(parser_T* parser, scope_T* scope) { 
-  return parserParseStatements(parser, scope);
-}
-
-AST_T* parserParseStatement(parser_T* parser, scope_T* scope) {
+AST_T* parseStatement(parser_T* parser, scope_T* scope) {
+  // Check the type of the current token and parse accordingly
   switch (parser->currentToken->type) {
-    case TOKEN_ID: return parserParseID(parser, scope); break;
+    case TOKEN_STRING: return parseString(parser, scope); break;
+    case TOKEN_ID: return parseID(parser, scope); break;
+    case TOKEN_INT: return parseInt(parser, scope); break;
   }
 
   return initAST(AST_NOOP);
 }
 
-AST_T* parserParseStatements(parser_T* parser, scope_T* scope) {
+AST_T* parseStatements(parser_T* parser, scope_T* scope) {
+  // Create a compound AST node to hold the statements and allocate memory for the statements
   AST_T* compound = initAST(AST_COMPOUND);
   compound->compoundVal = calloc(1, sizeof(struct AST_STRUCT));
   
-  AST_T* statement = parserParseStatement(parser, scope);
+  // Parse the first statement
+  AST_T* statement = parseStatement(parser, scope);
   statement->scope = scope;
 
+  // Add the statement to the compound node
   compound->compoundVal[0] = statement;
   compound->compoundSize += 1;
   compound->scope = scope;  
 
+  // Parse the rest of the statements, using a semicolon as the seperator
   while(parser->currentToken->type == TOKEN_SEMI) {
-    parserEat(parser, TOKEN_SEMI);
+    eat(parser, TOKEN_SEMI);
 
-    AST_T* statement = parserParseStatement(parser, scope);
+    AST_T* statement = parseStatement(parser, scope);
 
+    // If there is another statement, increase the size of the compound and reallocate memory for the compound's values
     if (statement) {
       compound->compoundSize += 1;    
       compound->compoundVal = realloc(
@@ -69,79 +78,10 @@ AST_T* parserParseStatements(parser_T* parser, scope_T* scope) {
   return compound;
 }
 
-AST_T* parserParseExpression(parser_T* parser, scope_T* scope) {
-  switch (parser->currentToken->type) {
-    case TOKEN_STRING: return parserParseString(parser, scope); break;
-    case TOKEN_ID: return parserParseID(parser, scope); break;
-  }
-
-  return initAST(AST_NOOP);
-}
-
-AST_T* parserParseFactor(parser_T* parser, scope_T* scope) {
-
-}
-
-AST_T* parserParseTerm(parser_T* parser, scope_T* scope) {
-
-}
-
-AST_T* parserParseFuncCall(parser_T* parser, scope_T* scope) {
-  AST_T* funcCall = initAST(AST_FUNCTION_CALL);
-  funcCall->funcCallName = parser->prevToken->val;
-
-  parserEat(parser, TOKEN_LPAREN);
-
-  if (parser->currentToken->type != TOKEN_RPAREN) {
-    funcCall->funcCallArgs = calloc(1, sizeof(struct AST_STRUCT));
-    
-    AST_T* expression = parserParseExpression(parser, scope);
-    funcCall->funcCallArgs[0] = expression;
-    funcCall->funcCallArgsSize += 1;
-
-    while(parser->currentToken->type == TOKEN_COMMA) {
-      parserEat(parser, TOKEN_COMMA);
-
-      AST_T* expression = parserParseExpression(parser, scope);
-      funcCall->funcCallArgsSize += 1;
-      
-      funcCall->funcCallArgs = realloc(
-        funcCall->funcCallArgs, 
-        (funcCall->funcCallArgsSize + 1) * sizeof(struct AST_STRUCT)
-      );
-
-      funcCall->funcCallArgs[funcCall->funcCallArgsSize - 1] = expression;
-    }
-  }
-
-  parserEat(parser, TOKEN_RPAREN);
-
-  funcCall->scope = scope;
-
-  return funcCall;
-}
-
-AST_T* parserParseVarDef(parser_T* parser, scope_T* scope) {
-  parserEat(parser, TOKEN_ID); // let
-  char* varDefVarName = parser->currentToken->val;
-  parserEat(parser, TOKEN_ID); // variable name
-  parserEat(parser, TOKEN_EQUALS); // =
-  AST_T* varDefVal = parserParseExpression(parser, scope); // value
-
-  // Create the AST node with its values
-  AST_T* varDef = initAST(AST_VARIABLE_DEFINITION);
-  varDef->varDefVarName = varDefVarName;
-  varDef->varDefVal = varDefVal;
-
-  varDef->scope = scope;
-
-  return varDef;
-}
-
-AST_T* parserParseFuncDef(parser_T* parser, scope_T* scope) {
+AST_T* parseFuncDef(parser_T* parser, scope_T* scope) {
   AST_T* funcDef = initAST(AST_FUNCTION_DEFINITION);
 
-  parserEat(parser, TOKEN_ID); // func
+  eat(parser, TOKEN_ID); // func
   char* funcName = parser->currentToken->val;
   funcDef->funcDefName = calloc(
     strlen(funcName) + 1, 
@@ -149,19 +89,19 @@ AST_T* parserParseFuncDef(parser_T* parser, scope_T* scope) {
   );
   strcpy(funcDef->funcDefName, funcName);
 
-  parserEat(parser, TOKEN_ID); // function name
+  eat(parser, TOKEN_ID); // function name
 
-  parserEat(parser, TOKEN_LPAREN); // (
+  eat(parser, TOKEN_LPAREN); // (
 
   if (parser->currentToken->type != TOKEN_RPAREN) {
     // The arguments of the function
     funcDef->funcDefArgs = calloc(1, sizeof(struct AST_STRUCT*));
-    AST_T* arg = parserParseVar(parser, scope);
+    AST_T* arg = parseVar(parser, scope);
     funcDef->funcDefArgsSize += 1;
     funcDef->funcDefArgs[funcDef->funcDefArgsSize - 1] = arg;
 
     while (parser->currentToken->type == TOKEN_COMMA) {
-      parserEat(parser, TOKEN_COMMA); // ,
+      eat(parser, TOKEN_COMMA); // ,
       funcDef->funcDefArgsSize += 1;
 
       funcDef->funcDefArgs = realloc(
@@ -169,56 +109,127 @@ AST_T* parserParseFuncDef(parser_T* parser, scope_T* scope) {
         funcDef->funcDefArgsSize * sizeof(struct AST_STRUCT*)
       );
 
-      AST_T* arg = parserParseVar(parser, scope);
+      AST_T* arg = parseVar(parser, scope);
       funcDef->funcDefArgs[funcDef->funcDefArgsSize - 1] = arg;
     }
   }
 
-  parserEat(parser, TOKEN_RPAREN); // )
-  parserEat(parser, TOKEN_LBRACE); // {  
+  eat(parser, TOKEN_RPAREN); // )
+  eat(parser, TOKEN_LBRACE); // {  
 
   // The body of the function
-  funcDef->funcDefBody = parserParseStatements(parser, scope);
+  funcDef->funcDefBody = parseStatements(parser, scope);
 
-  parserEat(parser, TOKEN_RBRACE); // }
+  eat(parser, TOKEN_RBRACE); // }
 
   funcDef->scope = scope;
 
   return funcDef;
 }
 
-AST_T* parserParseVar(parser_T* parser, scope_T* scope) {
+AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
+  // Parse a function call and create an AST node with the function name and arguments as the value
+  AST_T* funcCall = initAST(AST_FUNCTION_CALL);
+  funcCall->funcCallName = parser->prevToken->val;
+
+  eat(parser, TOKEN_LPAREN);
+
+  // If there are arguments
+  if (parser->currentToken->type != TOKEN_RPAREN) {
+    funcCall->funcCallArgs = calloc(1, sizeof(struct AST_STRUCT));
+    
+    AST_T* statement = parseStatement(parser, scope);
+    funcCall->funcCallArgs[0] = statement;
+    funcCall->funcCallArgsSize += 1;
+
+    // Go through the arguments of the function
+    while(parser->currentToken->type == TOKEN_COMMA) {
+      eat(parser, TOKEN_COMMA);
+
+      AST_T* statement = parseStatement(parser, scope);
+      funcCall->funcCallArgsSize += 1;
+      
+      funcCall->funcCallArgs = realloc(
+        funcCall->funcCallArgs, 
+        (funcCall->funcCallArgsSize + 1) * sizeof(struct AST_STRUCT)
+      );
+
+      funcCall->funcCallArgs[funcCall->funcCallArgsSize - 1] = statement;
+    }
+  }
+
+  eat(parser, TOKEN_RPAREN);
+
+  funcCall->scope = scope; // Add it to the scope
+
+  return funcCall;
+}
+
+AST_T* parseVarDef(parser_T* parser, scope_T* scope) {
+  eat(parser, TOKEN_ID); // let
+  char* varDefVarName = parser->currentToken->val;
+  eat(parser, TOKEN_ID); // variable name
+  eat(parser, TOKEN_EQUALS); // =
+  AST_T* varDefVal = parseStatement(parser, scope); // value
+
+  // Create the AST node with its values
+  AST_T* varDef = initAST(AST_VARIABLE_DEFINITION);
+  varDef->varDefVarName = varDefVarName;
+  varDef->varDefVal = varDefVal;
+
+  varDef->scope = scope; // Add it to the scope
+
+  return varDef;
+}
+
+AST_T* parseVar(parser_T* parser, scope_T* scope) {
+  // Parse a variable and create an AST node with the variable name as the value
   char* tokenVal = parser->currentToken->val;
-  parserEat(parser, TOKEN_ID); // variable name
+  eat(parser, TOKEN_ID); // variable name
   
+  // Parse function arguments
   if (parser->currentToken->type == TOKEN_LPAREN) 
-    return parserParseFuncCall(parser, scope);
+    return parseFuncCall(parser, scope);
   
   // Create the AST node with its values
   AST_T* var = initAST(AST_VARIABLE);
   var->varName = tokenVal;
-  var->scope = scope;
+  var->scope = scope; // Add it to the scope
 
   return var;
 }
 
-AST_T* parserParseString(parser_T* parser, scope_T* scope) {
+AST_T* parseString(parser_T* parser, scope_T* scope) {
+  // Parse a string and create an AST node with the string as the value
   AST_T* string = initAST(AST_STRING);
   string->stringVal = parser->currentToken->val;
   
-  parserEat(parser, TOKEN_STRING);
+  eat(parser, TOKEN_STRING);
 
   string->scope = scope;
 
   return string;
 }
 
-AST_T* parserParseID(parser_T* parser, scope_T* scope) {
+AST_T* parseInt(parser_T* parser, scope_T* scope) {
+  // Parse an integer and create an AST node with the number as the value
+  AST_T* num = initAST(AST_INT);
+  num->numVal = (intptr_t) parser->currentToken->val;
+  
+  eat(parser, TOKEN_INT);
+
+  num->scope = scope;
+
+  return num;
+}
+
+AST_T* parseID(parser_T* parser, scope_T* scope) {
+  // Check the current identifier and parse accordingly
   if (strcmp(parser->currentToken->val, "let") == 0)
-    return parserParseVarDef(parser, scope);
+    return parseVarDef(parser, scope);
   
   if(strcmp(parser->currentToken->val, "func") == 0)
-    return parserParseFuncDef(parser, scope);
+    return parseFuncDef(parser, scope);
   
-  return parserParseVar(parser, scope);
+  return parseVar(parser, scope);
 }

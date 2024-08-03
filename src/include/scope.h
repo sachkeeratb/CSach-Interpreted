@@ -2,6 +2,11 @@
 #define SCOPE_H
 #include "AST.h"
 
+/**
+ * @brief A scope is a region of code where a variable or function is defined and can be accessed.
+ *        It determines the visibility and lifetime of variables and functions.
+ */
+
 typedef struct SCOPE_STRUCT {  
   AST_T** varDefs;
   size_t varDefsSize;
