@@ -18,7 +18,7 @@ void eat(parser_T* parser, int tokenType) {
   // Check if the current token is of the correct type
   if (parser->currentToken->type != tokenType) {
     printf(
-      "Unexpected token `%s` with type %d\n", parser->currentToken->val, 
+      "Unexpected token `%s` with type %d\n", (char*) parser->currentToken->val, 
       parser->currentToken->type
     );
     printf(
@@ -38,9 +38,8 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope) {
     case TOKEN_STRING: return parseString(parser, scope); break;
     case TOKEN_ID: return parseID(parser, scope); break;
     case TOKEN_INT: return parseInt(parser, scope); break;
+    default: return initAST(AST_NOOP); break;
   }
-
-  return initAST(AST_NOOP);
 }
 
 AST_T* parseStatements(parser_T* parser, scope_T* scope) {
