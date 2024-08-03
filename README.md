@@ -1,7 +1,7 @@
 # CSach
 ## Sachkeerat Singh Brar's Custom Programming Language
 
-Welcome to the repository of my custom programming language! This project is a personal endeavor to learn and explore the C programming language (hence the name is C + Sach) by developing a new programming language from scratch. Inspired by [Ianertson's YouTube tutorials](https://www.youtube.com/@helloworldcode), this project serves a way for me to learn C in a creative way.
+Welcome to the repository of my custom programming language! This project is a personal endeavor to learn and explore the C programming language (hence the name is C + Sach) by developing an interpreter to create a new programming language. Inspired by [Ianertson's](https://www.youtube.com/@helloworldcode) YouTube tutorials, this project serves a way for me to learn C in a creative way.
 
 ## Table of Contents
 
@@ -21,6 +21,7 @@ This project is designed to help me (and potentially others) learn the fundament
 
 - **Variable Declaration and Printing**: You can create variables and print their values.
 - **Function Declaration and Calling**: You can create your own functions with custom arguments and call them in their scope.
+- **Math**: You can use integers (more coming soon!).
 
 ## Getting Started
 
@@ -112,4 +113,4 @@ Nice to meet you!
 ```
 
 ## Acknowledgements
-Special thanks to [Ianertson](https://www.youtube.com/@helloworldcode) for the amazing tutorial series that inspired this project.
+Special thanks to Ianertson [GitHub](https://github.com/sebbekarlsson) [YouTube](https://www.youtube.com/@helloworldcode) for the amazing tutorial series and [GitHub Repository](https://github.com/sebbekarlsson/hello) that inspired this project.
