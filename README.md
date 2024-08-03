@@ -113,4 +113,4 @@ Nice to meet you!
 ```
 
 ## Acknowledgements
-Special thanks to Ianertson [GitHub](https://github.com/sebbekarlsson) [YouTube](https://www.youtube.com/@helloworldcode) for the amazing tutorial series and [GitHub Repository](https://github.com/sebbekarlsson/hello) that inspired this project.
+Special thanks to [Ianertson](https://github.com/sebbekarlsson) for the amazing tutorial series on [YouTube](https://www.youtube.com/@helloworldcode) and his [GitHub Repository](https://github.com/sebbekarlsson/hello) that inspired this project.
