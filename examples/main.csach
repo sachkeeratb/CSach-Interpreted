@@ -1,10 +1,12 @@
-let greeting = "Hello,";
-let world = "world!";
+let greeting = "Hello, " + "world!";
 
-func main(){
-  println(greeting, world);
+let a = 3 * 2 - 1 + 2;
+
+func main() {
+  println(greeting);
   let statement = "Nice to meet you!";
-  print(statement);
+  println(statement);
+  println();
+  print("The value of a is", 4, "and that's cool!");
 };
-
 main();

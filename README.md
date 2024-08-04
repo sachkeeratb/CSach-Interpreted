@@ -21,7 +21,7 @@ This project is designed to help me (and potentially others) learn the fundament
 
 - **Variable Declaration and Printing**: You can create variables and print their values.
 - **Function Declaration and Calling**: You can create your own functions with custom arguments and call them in their scope.
-- **Math**: You can use integers (more coming soon!).
+- **Math**: You can use integers. Basic math features are implemented. TODO: Order of operations and parentheses
 
 ## Getting Started
 
@@ -66,6 +66,7 @@ Before you begin, ensure you have met the following requirements:
     b) With system-wide use
     ```sh
     csach <filePath>
+    ```
 
 5. The optional step to uninstall\
     a) Locally
@@ -95,21 +96,25 @@ TODO
 Here's an example of how to use the current features
 
 ```
-let greeting = "Hello,";
-let world = "world!";
+let greeting = "Hello, " + "world!";
 
-func main(){
-  println(greeting, world);
+let a = 3 * 2 - 1 + 2;
+
+func main() {
+  println(greeting);
   let statement = "Nice to meet you!";
-  print(statement);
+  println(statement);
+  println();
+  print("The value of a is", 4, "and that's cool!");
 };
-
 main();
 ```
 Output:
 ```
 Hello, world!
 Nice to meet you!
+
+The value of a is 4 and that's cool!
 ```
 
 ## Acknowledgements

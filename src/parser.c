@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include "include/parser.h"
 #include "include/scope.h"
 
@@ -37,6 +38,8 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope) {
   switch (parser->currentToken->type) {
     case TOKEN_STRING: return parseString(parser, scope); break;
     case TOKEN_ID: return parseID(parser, scope); break;
+    case TOKEN_PLUS:
+    case TOKEN_MINUS:
     case TOKEN_INT: return parseInt(parser, scope); break;
     default: return initAST(AST_NOOP); break;
   }
@@ -205,6 +208,16 @@ AST_T* parseString(parser_T* parser, scope_T* scope) {
   
   eat(parser, TOKEN_STRING);
 
+  while(parser->currentToken->type == TOKEN_PLUS) {
+    eat(parser, TOKEN_PLUS);
+    if (parser->currentToken->type != TOKEN_STRING) {
+      printf("Concantinating non-string types with strings is currently unsupported.\n");
+      exit(1);
+    }
+    string->stringVal = strcat(string->stringVal, (char*) parser->currentToken->val);
+    eat(parser, TOKEN_STRING);
+  }
+
   string->scope = scope;
 
   return string;
@@ -213,9 +226,74 @@ AST_T* parseString(parser_T* parser, scope_T* scope) {
 AST_T* parseInt(parser_T* parser, scope_T* scope) {
   // Parse an integer and create an AST node with the number as the value
   AST_T* num = initAST(AST_INT);
-  num->numVal = (intptr_t) parser->currentToken->val;
+
+  // Check if the number is positive or negative and assign the value accordingly
+  if (parser->currentToken->type == TOKEN_PLUS) 
+    eat(parser, TOKEN_PLUS);
+  else if (parser->currentToken->type == TOKEN_MINUS) {
+    eat(parser, TOKEN_MINUS);
+    num->numVal = -1 * (intptr_t) parser->currentToken->val;
+  }
+  else
+    num->numVal = (intptr_t) parser->currentToken->val;
   
   eat(parser, TOKEN_INT);
+
+  // Check if there are more operations to perform on the number
+  unsigned keepRepeat = 1;
+  while (keepRepeat) {
+    switch (parser->currentToken->type) {
+    case TOKEN_PLUS:
+      eat(parser, TOKEN_PLUS);
+      num->numVal += (intptr_t) parser->currentToken->val;
+      eat(parser, TOKEN_INT);
+      break;
+    
+    case TOKEN_MINUS:
+      eat(parser, TOKEN_MINUS);
+      num->numVal -= (intptr_t) parser->currentToken->val;
+      eat(parser, TOKEN_INT);
+      break;
+    
+    case TOKEN_MULTIPLY:
+      eat(parser, TOKEN_MULTIPLY);
+      num->numVal *= (intptr_t) parser->currentToken->val;
+      eat(parser, TOKEN_INT);
+      break;
+
+    case TOKEN_DIVIDE:
+      eat(parser, TOKEN_DIVIDE);
+      if ((intptr_t) parser->currentToken->val == 0) {
+        printf("Division by zero is not allowed.\n");
+        exit(1);
+      }
+      num->numVal /= (intptr_t) parser->currentToken->val;
+      eat(parser, TOKEN_INT);
+      break;  
+    
+    case TOKEN_POW:
+      eat(parser, TOKEN_POW);
+      if ((intptr_t) parser->currentToken->val > 0)
+        for (int i = 1; i < (intptr_t) parser->currentToken->val; i++)
+          num->numVal *= num->numVal;
+      else if ((intptr_t) parser->currentToken->val == 0)
+        num->numVal = 1;
+      else if ((intptr_t) parser->currentToken->val < 0)
+        printf("Negative exponents are not supported currently.\n");
+      eat(parser, TOKEN_INT);
+      break;
+
+    case TOKEN_MODULO:
+      eat(parser, TOKEN_MODULO);
+      num->numVal %= (intptr_t) parser->currentToken->val;
+      eat(parser, TOKEN_INT);
+      break;  
+
+    default:
+      keepRepeat = 0;
+      break;
+    }    
+  }
 
   num->scope = scope;
 

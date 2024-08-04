@@ -121,8 +121,8 @@ AST_T* visit(visitor_T* visitor, AST_T* node) {
     case AST_FUNCTION_DEFINITION: return visitFuncDef(visitor, node); break;
     case AST_FUNCTION_CALL: return visitFuncCall(visitor, node); break;
     case AST_COMPOUND: return visitCompound(visitor, node); break;
-    case AST_BINOP: // TODO: Implement
-    case AST_STATEMENT_RETURN: printf("Implement soon."); break; // TODO: Implement
+    case AST_STATEMENT_RETURN: printf("Implementing return soon.\n"); exit(1); break;
+    case AST_BINOP:
     case AST_STRING:
     case AST_INT:
     case AST_NOOP: return node; break;
