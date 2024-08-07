@@ -228,8 +228,10 @@ AST_T* parseInt(parser_T* parser, scope_T* scope) {
   AST_T* num = initAST(AST_INT);
 
   // Check if the number is positive or negative and assign the value accordingly
-  if (parser->currentToken->type == TOKEN_PLUS) 
+  if (parser->currentToken->type == TOKEN_PLUS) {
+    num->numVal = (intptr_t) parser->currentToken->val;
     eat(parser, TOKEN_PLUS);
+	}
   else if (parser->currentToken->type == TOKEN_MINUS) {
     eat(parser, TOKEN_MINUS);
     num->numVal = -1 * (intptr_t) parser->currentToken->val;

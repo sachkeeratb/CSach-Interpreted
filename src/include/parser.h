@@ -28,8 +28,6 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope);
 
 AST_T* parseStatements(parser_T* parser, scope_T* scope);
 
-AST_T* parseInt(parser_T* parser, scope_T* scope);
-
 AST_T* parseFuncCall(parser_T* parser, scope_T* scope);
 
 AST_T* parseVarDef(parser_T* parser, scope_T* scope);
@@ -39,6 +37,8 @@ AST_T* parseFuncDef(parser_T* parser, scope_T* scope);
 AST_T* parseVar(parser_T* parser, scope_T* scope);
 
 AST_T* parseString(parser_T* parser, scope_T* scope);
+
+AST_T* parseInt(parser_T* parser, scope_T* scope);
 
 AST_T* parseID(parser_T* parser, scope_T* scope);
 
