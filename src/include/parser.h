@@ -39,8 +39,6 @@ AST_T* parseVar(parser_T* parser, scope_T* scope);
 
 AST_T* parseString(parser_T* parser, scope_T* scope);
 
-AST_T* parseIntExpr(parser_T* parser, scope_T* scope);
-
 AST_T* parseID(parser_T* parser, scope_T* scope);
 
 #endif
