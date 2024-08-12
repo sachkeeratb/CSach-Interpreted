@@ -40,7 +40,7 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope) {
     case TOKEN_ID: return parseID(parser, scope); break;
     case TOKEN_PLUS:
     case TOKEN_MINUS:
-    case TOKEN_INT: return parseInt(parser, scope); break;
+    case TOKEN_INT: return parseIntExpr(parser, scope); break;
     default: return initAST(AST_NOOP); break;
   }
 }
@@ -223,77 +223,87 @@ AST_T* parseString(parser_T* parser, scope_T* scope) {
   return string;
 }
 
-AST_T* parseInt(parser_T* parser, scope_T* scope) {
-  // Parse an integer and create an AST node with the number as the value
-  AST_T* num = initAST(AST_INT);
+AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
+  list_T* numList = initList();
+  list_T* opList = initList();
 
   // Check if the number is positive or negative and assign the value accordingly
-  if (parser->currentToken->type == TOKEN_PLUS) 
+  if (parser->currentToken->type == TOKEN_PLUS) {
     eat(parser, TOKEN_PLUS);
+    push(numList, (intptr_t) parser->currentToken->val);
+  }
   else if (parser->currentToken->type == TOKEN_MINUS) {
     eat(parser, TOKEN_MINUS);
-    num->numVal = -1 * (intptr_t) parser->currentToken->val;
+    push(numList, -1 * (intptr_t) parser->currentToken->val);
   }
   else
-    num->numVal = (intptr_t) parser->currentToken->val;
+    push(numList, (intptr_t) parser->currentToken->val);
   
   eat(parser, TOKEN_INT);
 
   // Check if there are more operations to perform on the number
-  unsigned keepRepeat = 1;
+  int keepRepeat = 1;
   while (keepRepeat) {
     switch (parser->currentToken->type) {
-    case TOKEN_PLUS:
-      eat(parser, TOKEN_PLUS);
-      num->numVal += (intptr_t) parser->currentToken->val;
-      eat(parser, TOKEN_INT);
-      break;
-    
-    case TOKEN_MINUS:
-      eat(parser, TOKEN_MINUS);
-      num->numVal -= (intptr_t) parser->currentToken->val;
-      eat(parser, TOKEN_INT);
-      break;
-    
-    case TOKEN_MULTIPLY:
-      eat(parser, TOKEN_MULTIPLY);
-      num->numVal *= (intptr_t) parser->currentToken->val;
-      eat(parser, TOKEN_INT);
-      break;
+      case TOKEN_PLUS:
+      case TOKEN_MINUS:
+      case TOKEN_MULTIPLY:
+      case TOKEN_DIVIDE:
+      case TOKEN_POW:
+      case TOKEN_MODULO:
+        push(opList, (long) parser->currentToken->type);
+        eat(parser, parser->currentToken->type);
 
-    case TOKEN_DIVIDE:
-      eat(parser, TOKEN_DIVIDE);
-      if ((intptr_t) parser->currentToken->val == 0) {
-        printf("Division by zero is not allowed.\n");
-        exit(1);
-      }
-      num->numVal /= (intptr_t) parser->currentToken->val;
-      eat(parser, TOKEN_INT);
-      break;  
-    
-    case TOKEN_POW:
-      eat(parser, TOKEN_POW);
-      if ((intptr_t) parser->currentToken->val > 0)
-        for (int i = 1; i < (intptr_t) parser->currentToken->val; i++)
-          num->numVal *= num->numVal;
-      else if ((intptr_t) parser->currentToken->val == 0)
-        num->numVal = 1;
-      else if ((intptr_t) parser->currentToken->val < 0)
-        printf("Negative exponents are not supported currently.\n");
-      eat(parser, TOKEN_INT);
-      break;
+        push(numList, (intptr_t) parser->currentToken->val);
+        eat(parser, TOKEN_INT);
+        break;
 
-    case TOKEN_MODULO:
-      eat(parser, TOKEN_MODULO);
-      num->numVal %= (intptr_t) parser->currentToken->val;
-      eat(parser, TOKEN_INT);
-      break;  
-
-    default:
-      keepRepeat = 0;
-      break;
+      default:
+        keepRepeat = 0;
+        break;
     }    
   }
+
+  AST_T* num = initAST(AST_INT);
+  
+  if (getSize(opList) == 0) {
+    num->numVal = numList->head->val;
+    num->scope = scope;
+    return num;
+  }
+  if (getSize(opList) == 1) {
+    switch (opList->head->val) {
+      case TOKEN_PLUS: num->numVal = numList->head->val + numList->head->next->val; break;
+      case TOKEN_MINUS: num->numVal = numList->head->val - numList->head->next->val; break;
+      case TOKEN_MULTIPLY: num->numVal = numList->head->val * numList->head->next->val; break;
+      case TOKEN_DIVIDE: 
+        if (numList->head->next->val == 0) {
+          printf("Division by zero is not allowed.\n");
+          exit(1);
+        }
+        num->numVal = numList->head->val / numList->head->next->val; 
+        break;
+      case TOKEN_POW: 
+        if (numList->head->next->val < 0) {
+          printf("Negative exponents are not supported for this number type. Use float.\n");
+          exit(1);
+        }
+        if (numList->head->next->val == 0) {
+          num->numVal = 1;
+          break;
+        }
+        for (int i = 1; i < numList->head->next->val; i++)
+          numList->head->val *= numList->head->val;
+        num->numVal = numList->head->val; 
+        break;
+      case TOKEN_MODULO: num->numVal = numList->head->val % numList->head->next->val; break;
+    }
+
+    num->scope = scope;
+    return num;
+  }
+
+  num->numVal = eval(opList, numList);
 
   num->scope = scope;
 

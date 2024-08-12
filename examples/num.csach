@@ -1,2 +1,2 @@
-let a = 3 + 2 * 2;
+let a = 2 + 2 * 3;
 println(a);

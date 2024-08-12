@@ -3,6 +3,7 @@
 #include "AST.h"
 #include "lexer.h"
 #include "scope.h"
+#include "list.h"
 
 /**
  * @brief A parser is a software component that analyzes a sequence of characters or tokens to determine its structure and meaning.
@@ -28,8 +29,6 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope);
 
 AST_T* parseStatements(parser_T* parser, scope_T* scope);
 
-AST_T* parseInt(parser_T* parser, scope_T* scope);
-
 AST_T* parseFuncCall(parser_T* parser, scope_T* scope);
 
 AST_T* parseVarDef(parser_T* parser, scope_T* scope);
@@ -39,6 +38,8 @@ AST_T* parseFuncDef(parser_T* parser, scope_T* scope);
 AST_T* parseVar(parser_T* parser, scope_T* scope);
 
 AST_T* parseString(parser_T* parser, scope_T* scope);
+
+AST_T* parseIntExpr(parser_T* parser, scope_T* scope);
 
 AST_T* parseID(parser_T* parser, scope_T* scope);
 
