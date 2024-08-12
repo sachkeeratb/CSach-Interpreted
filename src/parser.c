@@ -228,8 +228,10 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   list_T* opList = initList();
 
   // Check if the number is positive or negative and assign the value accordingly
-  if (parser->currentToken->type == TOKEN_PLUS) 
+  if (parser->currentToken->type == TOKEN_PLUS) {
     eat(parser, TOKEN_PLUS);
+    push(numList, (intptr_t) parser->currentToken->val);
+  }
   else if (parser->currentToken->type == TOKEN_MINUS) {
     eat(parser, TOKEN_MINUS);
     push(numList, -1 * (intptr_t) parser->currentToken->val);
