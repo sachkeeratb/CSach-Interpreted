@@ -9,20 +9,16 @@
  *        for each operation you want to perform on the objects.
  */
 
-typedef struct VISITOR_STRUCT { } visitor_T;
+AST_T* visit(AST_T* node);
 
-visitor_T* initVisitor();
+AST_T* visitVarDef(AST_T* node);
 
-AST_T* visit(visitor_T* visitor, AST_T* node);
+AST_T* visitVar(AST_T* node);
 
-AST_T* visitVarDef(visitor_T* visitor, AST_T* node);
+AST_T* visitFuncDef(AST_T* node);
 
-AST_T* visitVar(visitor_T* visitor, AST_T* node);
+AST_T* visitFuncCall(AST_T* node);
 
-AST_T* visitFuncDef(visitor_T* visitor, AST_T* node);
-
-AST_T* visitFuncCall(visitor_T* visitor, AST_T* node);
-
-AST_T* visitCompound(visitor_T* visitor, AST_T* node);
+AST_T* visitCompound(AST_T* node);
 
 #endif

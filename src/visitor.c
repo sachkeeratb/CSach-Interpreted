@@ -5,13 +5,13 @@
 #include "include/scope.h"
 
 // Built-in functions
-static AST_T* builtinFuncPrint(visitor_T* visitor, AST_T** args, int argsSize) {
+static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
   // Output the arguments as arg1 arg2 arg3
   // There is no space at the end
 
   int i = 0;
   while (i < argsSize - 1) {
-    AST_T* visited = visit(visitor, args[i]);
+    AST_T* visited = visit(args[i]);
     switch (visited->type) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
       case AST_INT: printf("%ld ", visited->numVal); break;
@@ -21,7 +21,7 @@ static AST_T* builtinFuncPrint(visitor_T* visitor, AST_T** args, int argsSize) {
     i++;
   }
 
-  AST_T* visited = visit(visitor, args[i]);
+  AST_T* visited = visit(args[i]);
   switch (visited->type) {
     case AST_STRING: printf("%s", visited->stringVal); break;
     case AST_INT: printf("%ld", visited->numVal); break;
@@ -31,7 +31,7 @@ static AST_T* builtinFuncPrint(visitor_T* visitor, AST_T** args, int argsSize) {
   return initAST(AST_NOOP);
 }
 
-static AST_T* builtinFuncPrintln(visitor_T* visitor, AST_T** args, int argsSize) {
+static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
   // Output the arguments as arg1 arg2 arg3
   // There is a new line created at the end
 
@@ -43,7 +43,7 @@ static AST_T* builtinFuncPrintln(visitor_T* visitor, AST_T** args, int argsSize)
 
   int i = 0;
   while (i < argsSize - 1) {
-    AST_T* visited = visit(visitor, args[i]);
+    AST_T* visited = visit(args[i]);
     switch (visited->type) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
       case AST_INT: printf("%ld ", visited->numVal); break;
@@ -53,7 +53,7 @@ static AST_T* builtinFuncPrintln(visitor_T* visitor, AST_T** args, int argsSize)
     i++;
   }
 
-  AST_T* visited = visit(visitor, args[i]);
+  AST_T* visited = visit(args[i]);
   switch (visited->type) {
     case AST_STRING: printf("%s\n", visited->stringVal); break;
     case AST_INT: printf("%ld\n", visited->numVal); break;
@@ -63,7 +63,7 @@ static AST_T* builtinFuncPrintln(visitor_T* visitor, AST_T** args, int argsSize)
   return initAST(AST_NOOP);
 }
 
-static AST_T* builtinFuncClear(visitor_T* visitor, AST_T** args, int argsSize) {
+static AST_T* builtinFuncClear(int argsSize) {
   // Clear the terminal
 
   // If there are arguments, print an error message
@@ -77,7 +77,7 @@ static AST_T* builtinFuncClear(visitor_T* visitor, AST_T** args, int argsSize) {
   return initAST(AST_NOOP);
 }
 
-static AST_T* builtinFuncExit(visitor_T* visitor, AST_T** args, int argsSize) {
+static AST_T* builtinFuncExit(AST_T** args, int argsSize) {
   // Exit the program with a status code
   // If there are no arguments, exit with code 0 silently
   if(argsSize == 0) {
@@ -91,7 +91,7 @@ static AST_T* builtinFuncExit(visitor_T* visitor, AST_T** args, int argsSize) {
   }
 
   // Get the argument
-  AST_T* visited = visit(visitor, args[0]);
+  AST_T* visited = visit(args[0]);
 
   // If the argument isn't an integer, print an error message and exit
   if (visited->type != AST_INT) {
@@ -106,21 +106,14 @@ static AST_T* builtinFuncExit(visitor_T* visitor, AST_T** args, int argsSize) {
   return initAST(AST_NOOP);
 }
 
-// Functions for the visitor
-visitor_T* initVisitor() {
-  visitor_T* visitor = calloc(1, sizeof(struct VISITOR_STRUCT)); // Allocate memory for the visitor
-
-  return visitor;
-}
-
-AST_T* visit(visitor_T* visitor, AST_T* node) {
+AST_T* visit(AST_T* node) {
   // Check the type of the node and visit accordingly
   switch (node->type) {
-    case AST_VARIABLE_DEFINITION: return visitVarDef(visitor, node); break;
-    case AST_VARIABLE: return visitVar(visitor, node); break;
-    case AST_FUNCTION_DEFINITION: return visitFuncDef(visitor, node); break;
-    case AST_FUNCTION_CALL: return visitFuncCall(visitor, node); break;
-    case AST_COMPOUND: return visitCompound(visitor, node); break;
+    case AST_VARIABLE_DEFINITION: return visitVarDef(node); break;
+    case AST_VARIABLE: return visitVar(node); break;
+    case AST_FUNCTION_DEFINITION: return visitFuncDef(node); break;
+    case AST_FUNCTION_CALL: return visitFuncCall(node); break;
+    case AST_COMPOUND: return visitCompound(node); break;
     case AST_STATEMENT_RETURN: printf("Implementing return soon.\n"); exit(1); break;
     case AST_BINOP:
     case AST_STRING:
@@ -135,13 +128,13 @@ AST_T* visit(visitor_T* visitor, AST_T* node) {
   return initAST(AST_NOOP);
 }
 
-AST_T* visitVarDef(visitor_T* visitor, AST_T* node) {
+AST_T* visitVarDef(AST_T* node) {
   scopeAddVarDef(node->scope, node); // Add the variable definition to the scope
 
   return node;
 }
 
-AST_T* visitVar(visitor_T* visitor, AST_T* node) {
+AST_T* visitVar(AST_T* node) {
   AST_T* varDef = scopeGetVarDef(node->scope, node->varName); // Get the variable definition from the scope
 
   // If the variable definition is not found, print an error message and exit
@@ -151,27 +144,25 @@ AST_T* visitVar(visitor_T* visitor, AST_T* node) {
   }
 
   // If the variable definition is found, return its value
-  return visit(visitor, varDef->varDefVal);
+  return visit(varDef->varDefVal);
 }
 
-AST_T* visitFuncDef(visitor_T* visitor, AST_T* node) {
+AST_T* visitFuncDef(AST_T* node) {
   scopeAddFuncDef(node->scope, node); // Add the function definition to the scope
 
   return node;
 }
 
-AST_T* visitFuncCall(visitor_T* visitor, AST_T* node) {
+AST_T* visitFuncCall(AST_T* node) {
   // Built-in functions
   if (strcmp(node->funcCallName, "print") == 0)
-    return builtinFuncPrint(visitor, node->funcCallArgs, node->funcCallArgsSize);
+    return builtinFuncPrint(node->funcCallArgs, node->funcCallArgsSize);
   if (strcmp(node->funcCallName, "println") == 0)
-    return builtinFuncPrintln(visitor, node->funcCallArgs, node->funcCallArgsSize);
+    return builtinFuncPrintln(node->funcCallArgs, node->funcCallArgsSize);
   if (strcmp(node->funcCallName, "clear") == 0)
-    return builtinFuncClear(visitor, node->funcCallArgs, node->funcCallArgsSize);
-  if (strcmp(node->funcCallName, "clear") == 0)
-    return builtinFuncClear(visitor, node->funcCallArgs, node->funcCallArgsSize);
+    return builtinFuncClear(node->funcCallArgsSize);
   if (strcmp(node->funcCallName, "exit") == 0)
-    return builtinFuncExit(visitor, node->funcCallArgs, node->funcCallArgsSize);
+    return builtinFuncExit(node->funcCallArgs, node->funcCallArgsSize);
   
   // Custom functions
   AST_T* funcDef = scopeGetFuncDef(node->scope, node->funcCallName);
@@ -189,7 +180,7 @@ AST_T* visitFuncCall(visitor_T* visitor, AST_T* node) {
   }
 
   // Go through the arguments
-  for (int i = 0; i < funcDef->funcDefArgsSize; i++) {
+  for (size_t i = 0; i < funcDef->funcDefArgsSize; i++) {
     // Get the variable and its value from the defined arguments
     AST_T* var = (AST_T*) funcDef->funcDefArgs[i];
     AST_T* val = (AST_T*) node->funcCallArgs[i];
@@ -209,13 +200,13 @@ AST_T* visitFuncCall(visitor_T* visitor, AST_T* node) {
   }
     
   // Found
-  return visit(visitor, funcDef->funcDefBody);
+  return visit(funcDef->funcDefBody);
 }
 
-AST_T* visitCompound(visitor_T* visitor, AST_T* node) {
+AST_T* visitCompound(AST_T* node) {
   // Go through all the statements in the compound statement
-  for (int i = 0; i < node->compoundSize; i++) 
-    visit(visitor, node->compoundVal[i]);
+  for (size_t i = 0; i < node->compoundSize; i++) 
+    visit(node->compoundVal[i]);
 
   return initAST(AST_NOOP);
 }

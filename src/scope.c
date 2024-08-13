@@ -33,7 +33,7 @@ AST_T* scopeAddVarDef(scope_T* scope, AST_T* varDef) {
 
 AST_T* scopeGetVarDef(scope_T* scope, const char* varDefName) {
   // Go through all the variable definitions in the scope
-  for (int i = 0; i < scope->varDefsSize; i++) {
+  for (size_t i = 0; i < scope->varDefsSize; i++) {
     AST_T* varDef = scope->varDefs[i];
 
     // If the name matches the name of a variable definition, return it
@@ -71,7 +71,7 @@ AST_T* scopeAddFuncDef(scope_T* scope, AST_T* funcDef) {
 
 AST_T* scopeGetFuncDef(scope_T* scope, const char* funcName) {
   // Go through all the function definitions in the scope
-  for (int i = 0; i < scope->funcDefsSize; i++) {
+  for (size_t i = 0; i < scope->funcDefsSize; i++) {
     AST_T* funcDef = scope->funcDefs[i];
 
     // If the name matches the name of a function definition, return it

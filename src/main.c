@@ -26,11 +26,8 @@ int main(int argc, char* argv[]) {
 	parser_T* parser = initParser(lexer);
   AST_T* root = parseStatements(parser, parser->scope);
 
-  // Initialize the visitor
-  visitor_T* visitor = initVisitor();
-
   // Visit the AST
-  visit(visitor, root);
+  visit(root);
 
   return 0;
 }

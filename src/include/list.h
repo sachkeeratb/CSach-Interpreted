@@ -12,20 +12,18 @@ typedef struct List {
 
 list_T* initList();
 
-void push(list_T* list, long val);
+void push(list_T** list, long val);
 
-long pop(list_T* list);
+long pop(list_T** list);
 
-void freeList(list_T* list);
+int getSize(list_T** list);
 
-int getSize(list_T* list);
+void evalExponents(list_T** opList, list_T** numList);
 
-void evalExponents(list_T* opList, list_T* numList);
+void evalMD(list_T** opList, list_T** numList);
 
-void evalMD(list_T* opList, list_T* numList);
+void evalAS(list_T** opList, list_T** numList);
 
-void evalAS(list_T* opList, list_T* numList);
-
-long eval(list_T* opList, list_T* numList);
+long eval(list_T** opList, list_T** numList);
 
 #endif

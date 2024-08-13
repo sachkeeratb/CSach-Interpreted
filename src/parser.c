@@ -6,7 +6,7 @@
 #include "include/scope.h"
 
 parser_T* initParser(lexer_T* lexer) {
-  parser_T* parser = calloc(1, sizeof(struct PARSER_STRUCT)); // Allocate memory for the parser
+  parser_T* parser = calloc(1, sizeof(parser_T)); // Allocate memory for the parser
   parser->lexer = lexer; // Set the lexer of the parser
   parser->currentToken = getNextToken(lexer); // Set the current token of the parser
   parser->prevToken = parser->currentToken; // Set the previous token of the parser
@@ -17,7 +17,7 @@ parser_T* initParser(lexer_T* lexer) {
 
 void eat(parser_T* parser, int tokenType) {
   // Check if the current token is of the correct type
-  if (parser->currentToken->type != tokenType) {
+  if ((int) parser->currentToken->type != tokenType) {
     printf(
       "Unexpected token `%s` with type %d\n", (char*) parser->currentToken->val, 
       parser->currentToken->type
@@ -230,14 +230,14 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   // Check if the number is positive or negative and assign the value accordingly
   if (parser->currentToken->type == TOKEN_PLUS) {
     eat(parser, TOKEN_PLUS);
-    push(numList, (intptr_t) parser->currentToken->val);
+    push(&numList, (intptr_t) parser->currentToken->val);
   }
   else if (parser->currentToken->type == TOKEN_MINUS) {
     eat(parser, TOKEN_MINUS);
-    push(numList, -1 * (intptr_t) parser->currentToken->val);
+    push(&numList, -1 * (intptr_t) parser->currentToken->val);
   }
   else
-    push(numList, (intptr_t) parser->currentToken->val);
+    push(&numList, (intptr_t) parser->currentToken->val);
   
   eat(parser, TOKEN_INT);
 
@@ -251,10 +251,10 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
       case TOKEN_DIVIDE:
       case TOKEN_POW:
       case TOKEN_MODULO:
-        push(opList, (long) parser->currentToken->type);
+        push(&opList, parser->currentToken->type);
         eat(parser, parser->currentToken->type);
 
-        push(numList, (intptr_t) parser->currentToken->val);
+        push(&numList, (intptr_t) parser->currentToken->val);
         eat(parser, TOKEN_INT);
         break;
 
@@ -266,12 +266,12 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
 
   AST_T* num = initAST(AST_INT);
   
-  if (getSize(opList) == 0) {
+  if (getSize(&opList) == 0) {
     num->numVal = numList->head->val;
     num->scope = scope;
     return num;
   }
-  if (getSize(opList) == 1) {
+  if (getSize(&opList) == 1) {
     switch (opList->head->val) {
       case TOKEN_PLUS: num->numVal = numList->head->val + numList->head->next->val; break;
       case TOKEN_MINUS: num->numVal = numList->head->val - numList->head->next->val; break;
@@ -303,7 +303,7 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
     return num;
   }
 
-  num->numVal = eval(opList, numList);
+  num->numVal = eval(&opList, &numList);
 
   num->scope = scope;
 
