@@ -105,7 +105,7 @@ func main() {
   let statement = "Nice to meet you!";
   println(statement);
   println();
-  print("The value of a is", 4, "and that's cool!");
+  print("The value of a is", a, "and that's cool!");
 };
 main();
 ```
@@ -114,7 +114,7 @@ Output:
 Hello, world!
 Nice to meet you!
 
-The value of a is 4 and that's cool!
+The value of a is 7 and that's cool!
 ```
 
 ## Acknowledgements
