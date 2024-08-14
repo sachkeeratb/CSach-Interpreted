@@ -15,7 +15,7 @@ static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
     switch (visited->type) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
       case AST_INT: printf("%ld ", visited->numVal); break;
-      default: printf("%p ", visited); break;
+      default: printf("%p ", (void*) visited); break;
     }
 
     i++;
@@ -25,7 +25,7 @@ static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
   switch (visited->type) {
     case AST_STRING: printf("%s", visited->stringVal); break;
     case AST_INT: printf("%ld", visited->numVal); break;
-    default: printf("%p", visited); break;
+    default: printf("%p", (void*) visited); break;
   }
 
   return initAST(AST_NOOP);
@@ -47,7 +47,7 @@ static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
     switch (visited->type) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
       case AST_INT: printf("%ld ", visited->numVal); break;
-      default: printf("%p ", visited); break;
+      default: printf("%p ", (void*) visited); break;
     }
 
     i++;
@@ -57,7 +57,7 @@ static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
   switch (visited->type) {
     case AST_STRING: printf("%s\n", visited->stringVal); break;
     case AST_INT: printf("%ld\n", visited->numVal); break;
-    default: printf("%p\n", visited); break;
+    default: printf("%p\n", (void*) visited); break;
   }
 
   return initAST(AST_NOOP);

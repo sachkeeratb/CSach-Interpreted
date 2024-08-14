@@ -5,12 +5,13 @@
 #include "include/token.h"
 
 list_T* initList() {
-	list_T* list = calloc(1, sizeof(list_T));
+	list_T* list = (list_T*) malloc(sizeof(list_T));
+	list->head = (void*) 0;
 	return list;
 }
 
 void push(list_T** list, long val) {
-	node_T* newNode = malloc(sizeof(node_T));
+	node_T* newNode = (node_T*) malloc(sizeof(node_T));
 	newNode->val = val;
 	newNode->next = (void*) 0;
 
@@ -27,8 +28,10 @@ void push(list_T** list, long val) {
 }
 
 long pop(list_T** list) {
-	if (!(*list)->head) 
-		return -1;
+	if (!(*list)->head) {
+		printf("Error: Empty list/expression recieved a call to take out more input.\n");
+		exit(1);
+	}
 
 	if (!(*list)->head->next) {
 		long val = (*list)->head->val;
@@ -86,6 +89,7 @@ void evalExponents(list_T** opList, list_T** numList) {
 
 		// Free the next number node
 		free(nextNum);
+		nextNum = (void*) 0;
 
 		// Remove the operator node
 		node_T* tempOp = currentOp;
@@ -96,6 +100,7 @@ void evalExponents(list_T** opList, list_T** numList) {
 			
 		currentOp = currentOp->next;
 		free(tempOp);
+		tempOp = (void*) 0;
 	}
 }
 
@@ -127,6 +132,7 @@ void evalMD(list_T** opList, list_T** numList) {
 
 		// Free the next number node
 		free(nextNum);
+		nextNum = (void*) 0;
 
 		// Remove the operator node
 		node_T* tempOp = currentOp;
@@ -134,9 +140,11 @@ void evalMD(list_T** opList, list_T** numList) {
 			(*opList)->head = currentOp->next;  // Update head if we remove the first operator
 		else 
 			prevNum->next = currentNum;  // Skip the removed node
-			
+		
 		currentOp = currentOp->next;
+
 		free(tempOp);
+		tempOp = (void*) 0;
 	}
 }
 
@@ -145,7 +153,7 @@ void evalAS(list_T** opList, list_T** numList) {
 	node_T* currentOp = (*opList)->head;
 	node_T* prevNum = (void*) 0;
 
-	while (currentOp) {
+	while (currentOp) {	
 		if (!(currentOp->val == TOKEN_PLUS) && !(currentOp->val == TOKEN_MINUS)) {
 			prevNum = currentNum;
 			currentNum = currentNum->next;
@@ -163,6 +171,7 @@ void evalAS(list_T** opList, list_T** numList) {
 
 		// Free the next number node
 		free(nextNum);
+		nextNum = (void*) 0;
 
 		// Remove the operator node
 		node_T* tempOp = currentOp;
@@ -179,6 +188,9 @@ void evalAS(list_T** opList, list_T** numList) {
 long eval(list_T** opList, list_T** numList) {
 	evalExponents(opList, numList);
 	evalMD(opList, numList);
+	/* Somewhere, from the transition from evalMD to evalAS, the program is not working as expected.
+	* The addition operator become corrupted and turns into a large, fixed number.
+	*/
 	evalAS(opList, numList);
   return (*numList)->head->val;
 }

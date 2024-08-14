@@ -23,8 +23,30 @@ void eat(parser_T* parser, int tokenType) {
       parser->currentToken->type
     );
     printf(
-      "Expected token with type %d\n", tokenType
+      "Expected token with type %d, which represents ", 
+      tokenType
     );
+    switch (tokenType) {
+      case TOKEN_EQUALS: printf("=\n"); break;
+		  case TOKEN_STRING: printf("string\n"); break;
+		  case TOKEN_INT: printf("integer\n"); break;
+		  case TOKEN_SEMI: printf(";\n"); break;
+		  case TOKEN_LPAREN: printf("(\n"); break;
+		  case TOKEN_RPAREN: printf(")\n"); break;
+		  case TOKEN_LBRACE: printf("{\n"); break;
+		  case TOKEN_RBRACE: printf("}\n"); break;
+		  case TOKEN_LBRACKET: printf("[\n"); break;
+      case TOKEN_RBRACKET: printf("]\n"); break;
+		  case TOKEN_COMMA: printf(",\n"); break;
+		  case TOKEN_PLUS: printf("+\n"); break;
+		  case TOKEN_MINUS: printf("-\n"); break;
+		  case TOKEN_MULTIPLY: printf("*\n"); break;
+		  case TOKEN_DIVIDE: printf("/\n"); break;
+		  case TOKEN_POW: printf("^\n"); break;
+		  case TOKEN_MODULO: printf("%%\n"); break;
+		  case TOKEN_EOF: printf("EOF\n"); break;
+      default: printf("an unknown token.\n"); break;
+    }
     exit(1);
   }
 
