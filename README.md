@@ -84,21 +84,21 @@ rm -rf CSach
 `
     or
 
-                b) System-wide
-                ```sh
-                sudo make uninstall
-                ```
+                    b) System-wide
+                    ```sh
+                    sudo make uninstall
+                    ```
 
-                or
+                    or
 
-                c) System-wide without the CSach Makefile
-                ```sh
-                sudo rm /usr/local/bin/csach
-                ```
+                    c) System-wide without the CSach Makefile
+                    ```sh
+                    sudo rm /usr/local/bin/csach
+                    ```
 
-            \
-            **Windows**\
-            TODO
+                \
+                **Windows**\
+                TODO
 
 ## Examples
 
