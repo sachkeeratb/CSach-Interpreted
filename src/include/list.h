@@ -12,6 +12,8 @@ typedef struct List {
 
 list_T* initList();
 
+node_T* createNewNode(long val);
+
 void push(list_T** list, long val);
 
 long pop(list_T** list);
@@ -22,7 +24,7 @@ void evalExponents(list_T** opList, list_T** numList);
 
 void evalMD(list_T** opList, list_T** numList);
 
-void evalAS(list_T** opList, list_T** numList);
+long evalAS(list_T** opList, list_T** numList);
 
 long eval(list_T** opList, list_T** numList);
 

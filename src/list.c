@@ -5,34 +5,49 @@
 #include "include/token.h"
 
 list_T* initList() {
+	// Allocate memory for the list
 	list_T* list = (list_T*) malloc(sizeof(list_T));
+	// Set the head of the list to NULL
 	list->head = (void*) 0;
 	return list;
 }
 
-void push(list_T** list, long val) {
-	node_T* newNode = (node_T*) malloc(sizeof(node_T));
-	newNode->val = val;
-	newNode->next = (void*) 0;
+node_T* createNewNode(long val) {
+	// Allocate memory for the new node
+  node_T* newNode = (node_T*) malloc(sizeof(node_T));
+	// Set the value of the new node and set the next node to NULL
+  newNode->val = val;
+  newNode->next = (void*) 0;
+  return newNode;
+}
 
+void push(list_T** list, long val) {
+	// Create a new node
+	node_T* newNode = createNewNode(val);
+
+	// If the list is empty, set the head to the new node
 	if (!(*list)->head) {
 		(*list)->head = newNode;
 		return;
 	}
 
+	// Traverse the list to the end and add the new node
 	node_T* temp = (*list)->head;
 	while (temp->next)
 		temp = temp->next;
 	
+	// Add the new node to the end of the list
 	temp->next = newNode;
 }
 
 long pop(list_T** list) {
+	// Check if the list is empty
 	if (!(*list)->head) {
 		printf("Error: Empty list/expression recieved a call to take out more input.\n");
 		exit(1);
 	}
 
+	// If the list has only one element, remove the element and return the value
 	if (!(*list)->head->next) {
 		long val = (*list)->head->val;
 		free((*list)->head);
@@ -40,12 +55,15 @@ long pop(list_T** list) {
 		return val;
 	}
 
+	// Traverse the list to the second last element
 	node_T* temp = (*list)->head;
 	while (temp->next->next) 
 		temp = temp->next;
 	
+	// Get the value of the last element to return
 	long val = temp->next->val;
 
+	// Free the memory of the last element and set the next of the second last element to NULL
 	free(temp->next);
 	temp->next = (void*) 0;
 
@@ -53,144 +71,151 @@ long pop(list_T** list) {
 }
 
 int getSize(list_T** list) {
-	if (!(*list)->head) 
-		return 0;
-
-	if (!(*list)->head->next) 
-		return 1;
-
+	// Traverse the list and count the number of elements
 	int size = 0;
 	for (node_T* current = (*list)->head; current; current = current->next)
 		size++;
 
+	// Return the size of the list
 	return size;
 }
 
 void evalExponents(list_T** opList, list_T** numList) {
-	node_T* currentNum = (*numList)->head;
-	node_T* currentOp = (*opList)->head;
+	// Store the current and previous number and operator nodes
+  node_T* currentNum = (*numList)->head;
+  node_T* currentOp = (*opList)->head;
 	node_T* prevNum = (void*) 0;
+	node_T* prevOp = (void*) 0;
 
-	while (currentOp) {			
+	// Traverse the operator list while there are still operators
+	while (currentOp) {
+		// If the current operator is not an exponent, move to the next operator
 		if (currentOp->val != TOKEN_POW) {
 			prevNum = currentNum;
 			currentNum = currentNum->next;
+			prevOp = currentOp;
 			currentOp = currentOp->next;
 			continue;
 		}
+
+		// Calculate the result of the exponent
+		long result;
+		if (currentNum->next->val == 0)
+			result = 1;
+		else if (currentNum->next->val < 0) {
+			printf("Error: Negative exponents are not supported for this number type.\n");
+			exit(1);
+		}
+		else {
+			result = currentNum->val;
+			for (int i = 1; i < currentNum->next->val; i++)
+				result *= currentNum->val;
+		}
+
+		// Update the linked list to replace operand nodes with the result
+		currentNum->val = result;
 		node_T* nextNum = currentNum->next;
-
-		long result = currentNum->val;
-		for (long i = 1; i < nextNum->val; i++)
-			result *= currentNum->val;
-		
-		currentNum->val = result;  // Store the result in the current number node
-		currentNum->next = nextNum->next;  // Remove the next number node
-
-		// Free the next number node
+		currentNum->next = currentNum->next->next;
 		free(nextNum);
-		nextNum = (void*) 0;
 
 		// Remove the operator node
-		node_T* tempOp = currentOp;
-		if (!prevNum) 
-			(*opList)->head = currentOp->next;  // Update head if we remove the first operator
-		else 
-			prevNum->next = currentNum;  // Skip the removed node
+		if (!prevOp)
+			(*opList)->head = currentOp->next;
+		else
+			prevOp->next = currentOp->next;
 			
+		// Free the memory of the operator node and move to the next operator
+		node_T* tempOp = currentOp;
 		currentOp = currentOp->next;
 		free(tempOp);
-		tempOp = (void*) 0;
 	}
 }
 
 void evalMD(list_T** opList, list_T** numList) {
-	node_T* currentNum = (*numList)->head;
-	node_T* currentOp = (*opList)->head;
+  // Store the current and previous number and operator nodes
+  node_T* currentNum = (*numList)->head;
+  node_T* currentOp = (*opList)->head;
 	node_T* prevNum = (void*) 0;
+	node_T* prevOp = (void*) 0;
 
+	// Traverse the operator list while there are still operators
 	while (currentOp) {
-		if (currentOp->val != TOKEN_MULTIPLY && currentOp->val != TOKEN_DIVIDE && currentOp->val != TOKEN_MODULO) {
+		// If the current operator is not multiplication, division, or modulo, move to the next operator
+		if (!(currentOp->val == TOKEN_MULTIPLY) && !(currentOp->val == TOKEN_DIVIDE) && !(currentOp->val == TOKEN_MODULO)) {
 			prevNum = currentNum;
 			currentNum = currentNum->next;
+			prevOp = currentOp;
 			currentOp = currentOp->next;
-			if (!currentOp) 
-				break;
 			continue;
 		}
 
-		node_T* nextNum = currentNum->next;
+		// Calculate the result of the operation
 		long result;
-		switch (currentOp->val) {
-			case TOKEN_MULTIPLY: result = currentNum->val * nextNum->val; break;
-			case TOKEN_DIVIDE: result = currentNum->val / nextNum->val; break;
-			case TOKEN_MODULO: result = currentNum->val % nextNum->val; break;
+		switch(currentOp->val) {
+			case TOKEN_MULTIPLY:
+				result = currentNum->val * currentNum->next->val;
+				break;
+			case TOKEN_DIVIDE:
+				result = currentNum->val / currentNum->next->val;
+				break;
+			case TOKEN_MODULO:
+				result = currentNum->val % currentNum->next->val;
+				break;
 		}
-			
-		currentNum->val = result;  // Store the result in the current number node
-		currentNum->next = nextNum->next;  // Remove the next number node
 
-		// Free the next number node
+		// Update the linked list to replace operand nodes with the result
+		currentNum->val = result;
+		node_T* nextNum = currentNum->next;
+		currentNum->next = currentNum->next->next;
 		free(nextNum);
-		nextNum = (void*) 0;
 
 		// Remove the operator node
+		if (!prevOp)
+			(*opList)->head = currentOp->next;
+		else
+			prevOp->next = currentOp->next;
+			
+		// Free the memory of the operator node and move to the next operator
 		node_T* tempOp = currentOp;
-		if (!prevNum) 
-			(*opList)->head = currentOp->next;  // Update head if we remove the first operator
-		else 
-			prevNum->next = currentNum;  // Skip the removed node
-		
 		currentOp = currentOp->next;
-
 		free(tempOp);
-		tempOp = (void*) 0;
 	}
 }
 
-void evalAS(list_T** opList, list_T** numList) {
-	node_T* currentNum = (*numList)->head;
-	node_T* currentOp = (*opList)->head;
-	node_T* prevNum = (void*) 0;
+long evalAS(list_T** opList, list_T** numList) {
+	// Store the current number and operator nodes
+  node_T* currentNum = (*numList)->head;
+  node_T* currentOp = (*opList)->head;
 
-	while (currentOp) {	
-		if (!(currentOp->val == TOKEN_PLUS) && !(currentOp->val == TOKEN_MINUS)) {
-			prevNum = currentNum;
-			currentNum = currentNum->next;
-			currentOp = currentOp->next;
-			if (!currentOp) 
-				break;
-			continue;
-		}
+	// Store the result of the expression
+	long result = currentNum->val;
 
-		node_T* nextNum = currentNum->next;
-		long result = currentOp->val == TOKEN_PLUS ? currentNum->val + nextNum->val : currentNum->val - nextNum->val;
-			
-		currentNum->val = result;  // Store the result in the current number node
-		currentNum->next = nextNum->next;  // Remove the next number node
+	// Traverse the operator list while there are still operators
+  while (currentOp) {
+		// Move to the next number and operator nodes
+		currentNum = currentNum->next;
 
-		// Free the next number node
-		free(nextNum);
-		nextNum = (void*) 0;
+		// If the current operator is addition, add the number to the result
+		if (currentOp->val == TOKEN_PLUS) 
+			result += currentNum->val;
+		// Otherwise, subtract the number from the result
+		else
+			result -= currentNum->val;
 
-		// Remove the operator node
-		node_T* tempOp = currentOp;
-		if (!prevNum) 
-			(*opList)->head = currentOp->next;  // Update head if we remove the first operator
-		else 
-			prevNum->next = currentNum;  // Skip the removed node
-
+		// Move to the next operator node
 		currentOp = currentOp->next;
-		free(tempOp);
-	}
+  }
+
+  return result;
 }
 
 long eval(list_T** opList, list_T** numList) {
+	// Evaluate the exponents
 	evalExponents(opList, numList);
+
+	// Evaluate the multiplication, division, and modulo
 	evalMD(opList, numList);
-	/* Somewhere, from the transition from evalMD to evalAS, the program is not working as expected.
-	* The addition operator become corrupted and turns into a large, fixed number.
-	*/
-	evalAS(opList, numList);
-  return (*numList)->head->val;
+
+	// Evaluate the addition and subtraction
+	return evalAS(opList, numList);
 }

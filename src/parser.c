@@ -249,7 +249,7 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   list_T* numList = initList();
   list_T* opList = initList();
 
-  // Check if the number is positive or negative and assign the value accordingly
+  // Check if the first number is positive or negative and assign the value accordingly
   if (parser->currentToken->type == TOKEN_PLUS) {
     eat(parser, TOKEN_PLUS);
     push(&numList, (intptr_t) parser->currentToken->val);
@@ -267,6 +267,7 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   int keepRepeat = 1;
   while (keepRepeat) {
     switch (parser->currentToken->type) {
+      // If the token is a valid operation token, push it to the operation list and push the number to the number list
       case TOKEN_PLUS:
       case TOKEN_MINUS:
       case TOKEN_MULTIPLY:
@@ -286,45 +287,10 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
     }    
   }
 
+  // Initialize the AST node with the integer value
   AST_T* num = initAST(AST_INT);
-  
-  if (getSize(&opList) == 0) {
-    num->numVal = numList->head->val;
-    num->scope = scope;
-    return num;
-  }
-  if (getSize(&opList) == 1) {
-    switch (opList->head->val) {
-      case TOKEN_PLUS: num->numVal = numList->head->val + numList->head->next->val; break;
-      case TOKEN_MINUS: num->numVal = numList->head->val - numList->head->next->val; break;
-      case TOKEN_MULTIPLY: num->numVal = numList->head->val * numList->head->next->val; break;
-      case TOKEN_DIVIDE: 
-        if (numList->head->next->val == 0) {
-          printf("Division by zero is not allowed.\n");
-          exit(1);
-        }
-        num->numVal = numList->head->val / numList->head->next->val; 
-        break;
-      case TOKEN_POW: 
-        if (numList->head->next->val < 0) {
-          printf("Negative exponents are not supported for this number type. Use float.\n");
-          exit(1);
-        }
-        if (numList->head->next->val == 0) {
-          num->numVal = 1;
-          break;
-        }
-        for (int i = 1; i < numList->head->next->val; i++)
-          numList->head->val *= numList->head->val;
-        num->numVal = numList->head->val; 
-        break;
-      case TOKEN_MODULO: num->numVal = numList->head->val % numList->head->next->val; break;
-    }
 
-    num->scope = scope;
-    return num;
-  }
-
+  // Evaluate the expression and assign the value to the AST node
   num->numVal = eval(&opList, &numList);
 
   num->scope = scope;
