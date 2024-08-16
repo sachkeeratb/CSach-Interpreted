@@ -24,7 +24,7 @@ void advance(lexer_T* lexer) {
 
 void skipWhitespace(lexer_T* lexer) {
   // While there is either a space or a new line, we advance or "skip" it
-  while (lexer->c == ' ' || lexer->c == 10)
+  while (lexer->c == ' ' || lexer->c == '\n')
     advance(lexer);  
 }
 
@@ -32,7 +32,7 @@ token_T* getNextToken(lexer_T* lexer) {
   // While the character isn't null and we aren't at the end of the line, get the next token
   while (lexer->c != '\0' && lexer->i < strlen(lexer->contents)) {
     // Whitespace
-    if (lexer->c == ' ' || lexer->c == 10)
+    if (lexer->c == ' ' || lexer->c == '\n')
       skipWhitespace(lexer);  
 
     // Numbers
@@ -46,6 +46,9 @@ token_T* getNextToken(lexer_T* lexer) {
     // The beginning of a stirng
     if (lexer->c == '"') 
       return collectString(lexer);
+    
+    if (lexer->c == '\'') 
+      return collectChar(lexer);
     
     switch (lexer->c) {
       case '=': return advanceWithToken(lexer, initToken(TOKEN_EQUALS, getCurrentCharAsString(lexer))); break;
@@ -95,6 +98,29 @@ token_T* collectString(lexer_T* lexer) {
   advance(lexer);
 
 	return initToken(TOKEN_STRING, value); // Return the token
+}
+
+token_T* collectChar(lexer_T* lexer) {
+  // Move past the first '
+  advance(lexer);
+
+  if (lexer->c == '\'') 
+    exit(1);
+  
+
+  char value = lexer->c; // Get the current character
+  advance(lexer); // Move past the current character
+
+  // Check if the next character is a closing single quote
+  if (lexer->c != '\'') {
+    printf("Error: Expected a closing single quote, not `%c`.\n", lexer->c);
+    exit(1);
+  }
+
+  // Move past the final '
+  advance(lexer);
+
+	return initToken(TOKEN_CHAR, &value); // Return the token
 }
 
 token_T* collectID(lexer_T* lexer) {

@@ -22,6 +22,7 @@ This project is designed to help me (and potentially others) learn the fundament
 
 - **Variable Declaration and Printing**: You can create variables and print their values.
 - **Function Declaration and Calling**: You can create your own functions with custom arguments and call them in their scope.
+- **Variable types**: Long integers, strings, and characters. Explicit annotation coming soon.
 - **Math**: You can use integers. Basic math features are implemented. Other than parentheses, the order of operations is respected.
 
 ## Getting Started
@@ -78,27 +79,31 @@ Before you begin, ensure you have met the following requirements:
 
 5.  The optional step to uninstall\
      a) Locally
-    `sh
-cd ..
-rm -rf CSach
-`
+
+    ```sh
+    cd ..
+    rm -rf CSach
+    ```
+
     or
 
-                    b) System-wide
-                    ```sh
-                    sudo make uninstall
-                    ```
+    b) System-wide
 
-                    or
+    ```sh
+    sudo make uninstall
+    ```
 
-                    c) System-wide without the CSach Makefile
-                    ```sh
-                    sudo rm /usr/local/bin/csach
-                    ```
+    or
 
-                \
-                **Windows**\
-                TODO
+    c) System-wide without the CSach Makefile
+
+    ```sh
+    sudo rm /usr/local/bin/csach
+    ```
+
+\
+**Windows**\
+TODO
 
 ## Examples
 

@@ -28,8 +28,9 @@ void eat(parser_T* parser, int tokenType) {
     );
     switch (tokenType) {
       case TOKEN_EQUALS: printf("=\n"); break;
-		  case TOKEN_STRING: printf("string\n"); break;
-		  case TOKEN_INT: printf("integer\n"); break;
+		  case TOKEN_STRING: printf("a string.\n"); break;
+		  case TOKEN_CHAR: printf("a character.\n"); break;
+		  case TOKEN_INT: printf("an integer\n"); break;
 		  case TOKEN_SEMI: printf(";\n"); break;
 		  case TOKEN_LPAREN: printf("(\n"); break;
 		  case TOKEN_RPAREN: printf(")\n"); break;
@@ -60,6 +61,7 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope) {
   switch (parser->currentToken->type) {
     case TOKEN_STRING: return parseString(parser, scope); break;
     case TOKEN_ID: return parseID(parser, scope); break;
+    case TOKEN_CHAR: return parseChar(parser, scope); break;
     case TOKEN_PLUS:
     case TOKEN_MINUS:
     case TOKEN_INT: return parseIntExpr(parser, scope); break;
@@ -245,6 +247,20 @@ AST_T* parseString(parser_T* parser, scope_T* scope) {
   return string;
 }
 
+AST_T* parseChar(parser_T* parser, scope_T* scope) {
+  // Parse a character and create an AST node with the character as the value
+  AST_T* character = initAST(AST_CHAR);
+  character->charVal = *(char*) parser->currentToken->val;
+  
+  // Move past the character
+  eat(parser, TOKEN_CHAR);
+  
+  character->scope = scope;
+
+  return character;
+}
+
+
 AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   list_T* numList = initList();
   list_T* opList = initList();
@@ -291,7 +307,7 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   AST_T* num = initAST(AST_INT);
 
   // Evaluate the expression and assign the value to the AST node
-  num->numVal = eval(&opList, &numList);
+  num->intVal = eval(&opList, &numList);
 
   num->scope = scope;
 

@@ -14,7 +14,8 @@ static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
     AST_T* visited = visit(args[i]);
     switch (visited->type) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
-      case AST_INT: printf("%ld ", visited->numVal); break;
+      case AST_INT: printf("%ld ", visited->intVal); break;
+      case AST_CHAR: printf("%c ", visited->charVal); break;
       default: printf("%p ", (void*) visited); break;
     }
 
@@ -24,7 +25,8 @@ static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
   AST_T* visited = visit(args[i]);
   switch (visited->type) {
     case AST_STRING: printf("%s", visited->stringVal); break;
-    case AST_INT: printf("%ld", visited->numVal); break;
+    case AST_INT: printf("%ld", visited->intVal); break;
+    case AST_CHAR: printf("%c", visited->charVal); break;
     default: printf("%p", (void*) visited); break;
   }
 
@@ -46,7 +48,8 @@ static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
     AST_T* visited = visit(args[i]);
     switch (visited->type) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
-      case AST_INT: printf("%ld ", visited->numVal); break;
+      case AST_INT: printf("%ld ", visited->intVal); break;
+      case AST_CHAR: printf("%c ", visited->charVal); break;
       default: printf("%p ", (void*) visited); break;
     }
 
@@ -56,7 +59,8 @@ static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
   AST_T* visited = visit(args[i]);
   switch (visited->type) {
     case AST_STRING: printf("%s\n", visited->stringVal); break;
-    case AST_INT: printf("%ld\n", visited->numVal); break;
+    case AST_INT: printf("%ld\n", visited->intVal); break;
+    case AST_CHAR: printf("%c\n", visited->charVal); break;
     default: printf("%p\n", (void*) visited); break;
   }
 
@@ -100,8 +104,8 @@ static AST_T* builtinFuncExit(AST_T** args, int argsSize) {
   }
   
   // Exit with the argument's value
-  printf("Exited with code %ld.", visited->numVal); 
-  exit(visited->numVal);
+  printf("Exited with code %ld.", visited->intVal); 
+  exit(visited->intVal);
 
   return initAST(AST_NOOP);
 }
@@ -115,10 +119,7 @@ AST_T* visit(AST_T* node) {
     case AST_FUNCTION_CALL: return visitFuncCall(node); break;
     case AST_COMPOUND: return visitCompound(node); break;
     case AST_STATEMENT_RETURN: printf("Implementing return soon.\n"); exit(1); break;
-    case AST_BINOP:
-    case AST_STRING:
-    case AST_INT:
-    case AST_NOOP: return node; break;
+    default: return node; break;
   }
 
   // Uncaught statement

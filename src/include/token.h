@@ -14,6 +14,7 @@ typedef struct TOKEN_STRUCT {
     TOKEN_EQUALS, // =
 		TOKEN_STRING, // ""
 		TOKEN_INT, // 1234
+		TOKEN_CHAR, // ''
 		TOKEN_SEMI, // ;
 		TOKEN_LPAREN, // (
 		TOKEN_RPAREN, // )
@@ -22,12 +23,17 @@ typedef struct TOKEN_STRUCT {
 		TOKEN_LBRACKET, // [
     TOKEN_RBRACKET, // ]
 		TOKEN_COMMA, // ,
+
+		// Math operators
 		TOKEN_PLUS, // +
 		TOKEN_MINUS, // -
 		TOKEN_MULTIPLY, // *
 		TOKEN_DIVIDE, // /
 		TOKEN_POW, // ^
 		TOKEN_MODULO, // %
+
+		TOKEN_COLON, // : for type annotations
+		
 		TOKEN_EOF // The end of the file
   } type;
 

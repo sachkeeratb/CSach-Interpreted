@@ -14,6 +14,7 @@ typedef struct AST_STRUCT {
     AST_FUNCTION_DEFINITION, // func name(args) { body };
     AST_FUNCTION_CALL, // name(args);
     AST_STRING, // "val"
+    AST_CHAR, // 'a'
     AST_INT, // 1234
     AST_COMPOUND, // { statements }
     AST_BINOP, // Binary Operator
@@ -26,6 +27,7 @@ typedef struct AST_STRUCT {
   // For variable definitions
   char* varDefVarName;
   struct AST_STRUCT* varDefVal;
+  int varDefType;
 
   // For variable references
   char* varName;
@@ -45,18 +47,15 @@ typedef struct AST_STRUCT {
   // For strings
   char* stringVal;
 
-  // For numbers
-  long numVal;
+  // For characters
+  char charVal;
+
+  // For ints
+  long intVal;
 
   // For compound statements
   struct AST_STRUCT** compoundVal;
   size_t compoundSize;
-
-  // For BINOPS (binary operations)
-  struct AST_STRUCT* value;
-  struct AST_STRUCT* left;
-  struct AST_STRUCT* right;
-  int op;
 } AST_T;
 
 AST_T* initAST(int type);
