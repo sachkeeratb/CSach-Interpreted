@@ -7,10 +7,10 @@ flags = -g -v
 CC = $(shell command -v gcc >/dev/null 2>&1 && echo "clang" || echo "gcc")
 
 $(exec): $(objects)
-	$(CC) $(objects) $(flags) -o $(exec)
+	gcc $(objects) $(flags) -o $(exec)
 
 %.o: %.c include/%.h
-	$(CC) -c $(flags) $< -o $@
+	gcc -c $(flags) $< -o $@
 
 # System install
 install:
