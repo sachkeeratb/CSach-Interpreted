@@ -1,16 +1,16 @@
 exec = csach.out
 sources = $(wildcard src/*.c)
 objects = $(sources:.c=.o)
-flags = -g -v
+flags = -g
 
 # Find if you have gcc or clang and uses it
 CC = $(shell command -v gcc >/dev/null 2>&1 && echo "clang" || echo "gcc")
 
 $(exec): $(objects)
-	gcc $(objects) $(flags) -o $(exec)
+	$(CC) $(objects) $(flags) -o $(exec)
 
 %.o: %.c include/%.h
-	gcc -c $(flags) $< -o $@
+	$(CC) -c $(flags) $< -o $@
 
 # System install
 install:
