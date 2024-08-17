@@ -4,7 +4,9 @@
 #include "include/visitor.h"
 #include "include/io.h"
 
-// Print help message
+void printHelp();
+
+// Print a help message
 void printHelp() {
   printf(
     "Local usage: ./csach.out <filePath>\nSystem-wide usage: csach <filePath>\n"
