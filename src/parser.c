@@ -121,6 +121,7 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope, int type) {
       printf("Void is currently unsupported.\n");
       break;
   }
+  return initAST(AST_NOOP);
 }
 
 AST_T* parseStatements(parser_T* parser, scope_T* scope) {
@@ -268,7 +269,7 @@ AST_T* parseVarDef(parser_T* parser, scope_T* scope) {
     else if (strcmp(parser->currentToken->val, "any") == 0)
       varDef->varDefType = ANY;
     else {
-      printf("Unknown type `%s`\n", parser->currentToken->val);
+      printf("Unknown type `%s`\n", (char*) parser->currentToken->val);
       exit(1);
     }
     eat(parser, TOKEN_ID); // type
@@ -292,7 +293,7 @@ AST_T* parseNewVarDef(parser_T* parser, scope_T* scope) {
   AST_T* varDef = scopeGetVarDef(scope, parser->currentToken->val);
 
   if (!varDef) {
-    printf("Undefined variable `%s`\n", parser->currentToken->val);
+    printf("Undefined variable `%s`\n", (char*) parser->currentToken->val);
     exit(1);
   }
 

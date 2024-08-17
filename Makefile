@@ -4,7 +4,7 @@ objects = $(sources:.c=.o)
 flags = -g
 
 # Find if you have gcc or clang and uses it
-CC = $(shell command -v gcc >/dev/null 2>&1 && echo "gcc" || echo "clang")
+CC = $(shell command -v gcc >/dev/null 2>&1 && echo "clang" || echo "gcc")
 
 $(exec): $(objects)
 	$(CC) $(objects) $(flags) -o $(exec)
