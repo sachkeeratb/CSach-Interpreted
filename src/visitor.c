@@ -5,7 +5,7 @@
 #include "include/scope.h"
 
 // Built-in functions
-static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
+AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
   // Output the arguments as arg1 arg2 arg3
   // There is no space at the end
 
@@ -35,7 +35,7 @@ static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
   return initAST(AST_NOOP);
 }
 
-static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
+AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
   // Output the arguments as arg1 arg2 arg3
   // There is a new line created at the end
 
@@ -71,7 +71,7 @@ static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
   return initAST(AST_NOOP);
 }
 
-static AST_T* builtinFuncClear(int argsSize) {
+AST_T* builtinFuncClear(int argsSize) {
   // Clear the terminal
 
   // If there are arguments, print an error message
@@ -85,7 +85,7 @@ static AST_T* builtinFuncClear(int argsSize) {
   return initAST(AST_NOOP);
 }
 
-static AST_T* builtinFuncExit(AST_T** args, int argsSize) {
+AST_T* builtinFuncExit(AST_T** args, int argsSize) {
   // Exit the program with a status code
   // If there are no arguments, exit with code 0 silently
   if(argsSize == 0) {
@@ -143,7 +143,7 @@ AST_T* visitVar(AST_T* node) {
   AST_T* varDef = scopeGetVarDef(node->scope, node->varName); // Get the variable definition from the scope
 
   // If the variable definition is not found, print an error message and exit
-  if (varDef == (void*) 0) {
+  if (!varDef) {
     printf("Undefined variable `%s`\n", node->varName);
     exit(1);
   }
@@ -173,10 +173,9 @@ AST_T* visitFuncCall(AST_T* node) {
   AST_T* funcDef = scopeGetFuncDef(node->scope, node->funcCallName);
 
   // Not found
-  if (funcDef == (void*) 0) {
-    printf("Undefined function call of `%s`\n", node->funcCallName);
-    exit(1);
-  }
+  if (!funcDef)
+    return (void*) 0;
+  
 
   // Invalid amount of arguments called
   if (node->funcCallArgsSize != funcDef->funcDefArgsSize) {

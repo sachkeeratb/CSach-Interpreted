@@ -281,6 +281,26 @@ AST_T* parseVarDef(parser_T* parser, scope_T* scope) {
   varDef->varDefVal = parseStatement(parser, scope, varDef->varDefType); // value;  
 
   varDef->scope = scope; // Add it to the scope
+  scopeAddVarDef(scope, varDef); // Add the variable definition to the scope
+
+  return varDef;
+}
+
+AST_T* parseNewVarDef(parser_T* parser, scope_T* scope) {
+  // Parse a new variable definition and create an AST node with the variable name and value as the value
+  eat(parser, TOKEN_ID); // rnew
+  AST_T* varDef = scopeGetVarDef(scope, parser->currentToken->val);
+
+  if (!varDef) {
+    printf("Undefined variable `%s`\n", parser->currentToken->val);
+    exit(1);
+  }
+
+  eat(parser, TOKEN_ID); // variable name
+
+  eat(parser, TOKEN_EQUALS); // =
+
+  varDef->varDefVal = parseStatement(parser, scope, varDef->varDefType); // value;  
 
   return varDef;
 }
@@ -364,18 +384,19 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   list_T* opList = initList();
 
   // Check if the first number is positive or negative and assign the value accordingly
-  if (parser->currentToken->type == TOKEN_PLUS) {
-    eat(parser, TOKEN_PLUS);
-    push(&numList, (intptr_t) parser->currentToken->val);
+  switch (parser->currentToken->type) {
+    case TOKEN_MINUS:
+      eat(parser, TOKEN_MINUS);
+      push(&numList, -1 * (intptr_t) parser->currentToken->val);
+      break;
+    case TOKEN_PLUS:
+      eat(parser, TOKEN_PLUS);
+    default:
+      push(&numList, (intptr_t) parser->currentToken->val);
+      eat(parser, TOKEN_INT);
+      break;
   }
-  else if (parser->currentToken->type == TOKEN_MINUS) {
-    eat(parser, TOKEN_MINUS);
-    push(&numList, -1 * (intptr_t) parser->currentToken->val);
-  }
-  else
-    push(&numList, (intptr_t) parser->currentToken->val);
-  
-  eat(parser, TOKEN_INT);
+
 
   // Check if there are more operations to perform on the number
   bool keepRepeat = true;
@@ -391,8 +412,14 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
         push(&opList, parser->currentToken->type);
         eat(parser, parser->currentToken->type);
 
-        push(&numList, (intptr_t) parser->currentToken->val);
-        eat(parser, TOKEN_INT);
+        if (scopeGetVarDef(scope, parser->currentToken->val)) {
+          push(&numList, (intptr_t) scopeGetVarDef(scope, parser->currentToken->val)->varDefVal->intVal);
+          eat(parser, TOKEN_ID);
+        }
+        else {
+          push(&numList, (intptr_t) parser->currentToken->val);
+          eat(parser, TOKEN_INT);
+        }
         break;
 
       default:
@@ -419,9 +446,41 @@ AST_T* parseID(parser_T* parser, scope_T* scope) {
   
   if (strcmp(parser->currentToken->val, "func") == 0)
     return parseFuncDef(parser, scope);
+  
+  if (strcmp(parser->currentToken->val, "rnew") == 0)
+    return parseNewVarDef(parser, scope);
 
   if (strcmp(parser->currentToken->val, "true") == 0 || strcmp(parser->currentToken->val, "false") == 0)
     return parseBool(parser, scope);
+
+  AST_T* node = initAST(AST_FUNCTION_CALL);
+  node->funcCallName = parser->currentToken->val;
+
+  if (strcmp(parser->currentToken->val, "print") == 0 || strcmp(parser->currentToken->val, "println") == 0 || strcmp(parser->currentToken->val, "clear") == 0 || strcmp(parser->currentToken->val, "exit") == 0){
+    eat(parser, TOKEN_ID);
+    eat(parser, TOKEN_LPAREN);
+    while (parser->currentToken->type != TOKEN_RPAREN) {
+      AST_T* statement = parseStatement(parser, scope, ANY);
+      node->funcCallArgsSize += 1;
+      node->funcCallArgs = realloc(
+        node->funcCallArgs, 
+        (node->funcCallArgsSize + 1) * sizeof(struct AST_STRUCT)
+      );
+      node->funcCallArgs[node->funcCallArgsSize - 1] = statement;
+      if (parser->currentToken->type == TOKEN_COMMA)
+        eat(parser, TOKEN_COMMA);
+    }
+    eat(parser, TOKEN_RPAREN);
+
+    if (strcmp(node->funcCallName, "print") == 0)
+      return builtinFuncPrint(node->funcCallArgs, node->funcCallArgsSize);
+    if (strcmp(node->funcCallName, "println") == 0)
+      return builtinFuncPrintln(node->funcCallArgs, node->funcCallArgsSize);
+    if (strcmp(node->funcCallName, "clear") == 0)
+      return builtinFuncClear(node->funcCallArgsSize);
+    if (strcmp(node->funcCallName, "exit") == 0)
+      return builtinFuncExit(node->funcCallArgs, node->funcCallArgsSize);
+  }
   
   return parseVar(parser, scope);
 }
