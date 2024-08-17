@@ -1,7 +1,7 @@
 exec = csach.out
 sources = $(wildcard src/*.c)
 objects = $(sources:.c=.o)
-flags = -g
+flags = -g -v
 
 # Find if you have gcc or clang and uses it
 CC = $(shell command -v gcc >/dev/null 2>&1 && echo "clang" || echo "gcc")
