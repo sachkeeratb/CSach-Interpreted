@@ -29,6 +29,8 @@ token_T* collectChar(lexer_T* lexer);
 
 token_T* collectID(lexer_T* lexer);
 
+token_T* collectType(lexer_T* lexer);
+
 token_T* collectInt(lexer_T* lexer);
 
 token_T* advanceWithToken(lexer_T* lexer, token_T* token);

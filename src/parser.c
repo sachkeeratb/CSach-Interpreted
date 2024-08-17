@@ -3,7 +3,17 @@
 #include <stdint.h>
 #include <math.h>
 #include "include/parser.h"
-#include "include/scope.h"
+
+// For variable types
+enum {
+  VOID,
+  INT,
+  FLOAT,
+  CHAR,
+  BOOL,
+  STRING,
+  ANY
+} varType;
 
 parser_T* initParser(lexer_T* lexer) {
   parser_T* parser = calloc(1, sizeof(parser_T)); // Allocate memory for the parser
@@ -27,6 +37,7 @@ void eat(parser_T* parser, int tokenType) {
       tokenType
     );
     switch (tokenType) {
+      case TOKEN_ID: printf("an identifier.\n"); break;
       case TOKEN_EQUALS: printf("=\n"); break;
 		  case TOKEN_STRING: printf("a string.\n"); break;
 		  case TOKEN_CHAR: printf("a character.\n"); break;
@@ -45,6 +56,7 @@ void eat(parser_T* parser, int tokenType) {
 		  case TOKEN_DIVIDE: printf("/\n"); break;
 		  case TOKEN_POW: printf("^\n"); break;
 		  case TOKEN_MODULO: printf("%%\n"); break;
+      case TOKEN_COLON: printf(":\n"); break;
 		  case TOKEN_EOF: printf("EOF\n"); break;
       default: printf("an unknown token.\n"); break;
     }
@@ -56,16 +68,53 @@ void eat(parser_T* parser, int tokenType) {
   parser->currentToken = getNextToken(parser->lexer);
 }
 
-AST_T* parseStatement(parser_T* parser, scope_T* scope) {
+AST_T* parseStatement(parser_T* parser, scope_T* scope, int type) {
   // Check the type of the current token and parse accordingly
-  switch (parser->currentToken->type) {
-    case TOKEN_STRING: return parseString(parser, scope); break;
-    case TOKEN_ID: return parseID(parser, scope); break;
-    case TOKEN_CHAR: return parseChar(parser, scope); break;
-    case TOKEN_PLUS:
-    case TOKEN_MINUS:
-    case TOKEN_INT: return parseIntExpr(parser, scope); break;
-    default: return initAST(AST_NOOP); break;
+  switch (type) {
+    case ANY:
+      switch (parser->currentToken->type) {
+        case TOKEN_STRING: return parseString(parser, scope); break;
+        case TOKEN_ID: return parseID(parser, scope); break;
+        case TOKEN_CHAR: return parseChar(parser, scope); break;
+        case TOKEN_PLUS:
+        case TOKEN_MINUS:
+        case TOKEN_INT: return parseIntExpr(parser, scope); break;
+        default: return initAST(AST_NOOP); break;
+      } break;
+
+    case INT:
+      switch (parser->currentToken->type) {
+        case TOKEN_PLUS:
+        case TOKEN_MINUS:
+        case TOKEN_INT: return parseIntExpr(parser, scope); break;
+        default: printf("Expected an integer, but got `%s` with type %d\n", (char*) parser->currentToken->val, parser->currentToken->type); exit(1);
+      } break;
+
+    case FLOAT:
+      printf("Floats are currently unsupported.\n"); break;
+
+    case CHAR:
+      if (parser->currentToken->type != TOKEN_CHAR) {
+        printf("Expected a character, but got `%s` with type %d\n", (char*) parser->currentToken->val, parser->currentToken->type);
+        exit(1);
+      } 
+      return parseChar(parser, scope);
+      break;
+
+    case BOOL:
+      printf("Booleans are currently unsupported.\n"); break;
+
+    case STRING:
+      if (parser->currentToken->type != TOKEN_STRING) {
+        printf("Expected a string, but got `%s` with type %d\n", (char*) parser->currentToken->val, parser->currentToken->type);
+        exit(1);
+      } 
+      return parseString(parser, scope);
+      break;
+
+    case VOID:
+      printf("Void is currently unsupported.\n");
+      break;
   }
 }
 
@@ -75,7 +124,7 @@ AST_T* parseStatements(parser_T* parser, scope_T* scope) {
   compound->compoundVal = calloc(1, sizeof(struct AST_STRUCT));
   
   // Parse the first statement
-  AST_T* statement = parseStatement(parser, scope);
+  AST_T* statement = parseStatement(parser, scope, ANY);
   statement->scope = scope;
 
   // Add the statement to the compound node
@@ -87,7 +136,7 @@ AST_T* parseStatements(parser_T* parser, scope_T* scope) {
   while(parser->currentToken->type == TOKEN_SEMI) {
     eat(parser, TOKEN_SEMI);
 
-    AST_T* statement = parseStatement(parser, scope);
+    AST_T* statement = parseStatement(parser, scope, ANY);
 
     // If there is another statement, increase the size of the compound and reallocate memory for the compound's values
     if (statement) {
@@ -164,7 +213,7 @@ AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
   if (parser->currentToken->type != TOKEN_RPAREN) {
     funcCall->funcCallArgs = calloc(1, sizeof(struct AST_STRUCT));
     
-    AST_T* statement = parseStatement(parser, scope);
+    AST_T* statement = parseStatement(parser, scope, ANY);
     funcCall->funcCallArgs[0] = statement;
     funcCall->funcCallArgsSize += 1;
 
@@ -172,7 +221,7 @@ AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
     while(parser->currentToken->type == TOKEN_COMMA) {
       eat(parser, TOKEN_COMMA);
 
-      AST_T* statement = parseStatement(parser, scope);
+      AST_T* statement = parseStatement(parser, scope, ANY);
       funcCall->funcCallArgsSize += 1;
       
       funcCall->funcCallArgs = realloc(
@@ -192,16 +241,39 @@ AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
 }
 
 AST_T* parseVarDef(parser_T* parser, scope_T* scope) {
+  AST_T* varDef = initAST(AST_VARIABLE_DEFINITION);
+
   eat(parser, TOKEN_ID); // let
   char* varDefVarName = parser->currentToken->val;
-  eat(parser, TOKEN_ID); // variable name
-  eat(parser, TOKEN_EQUALS); // =
-  AST_T* varDefVal = parseStatement(parser, scope); // value
-
-  // Create the AST node with its values
-  AST_T* varDef = initAST(AST_VARIABLE_DEFINITION);
   varDef->varDefVarName = varDefVarName;
-  varDef->varDefVal = varDefVal;
+  eat(parser, TOKEN_ID); // variable name
+
+  if (parser->currentToken->type == TOKEN_COLON) {
+    eat(parser, TOKEN_COLON); // :
+    if (strcmp(parser->currentToken->val, "int") == 0)
+      varDef->varDefType = INT;
+    else if (strcmp(parser->currentToken->val, "float") == 0)
+      varDef->varDefType = FLOAT;
+    else if (strcmp(parser->currentToken->val, "char") == 0)
+      varDef->varDefType = CHAR;
+    else if (strcmp(parser->currentToken->val, "bool") == 0)
+      varDef->varDefType = BOOL;
+    else if (strcmp(parser->currentToken->val, "str") == 0)
+      varDef->varDefType = STRING;
+    else if (strcmp(parser->currentToken->val, "any") == 0)
+      varDef->varDefType = ANY;
+    else {
+      printf("Unknown type `%s`\n", parser->currentToken->val);
+      exit(1);
+    }
+    eat(parser, TOKEN_ID); // type
+  }
+  else 
+    varDef->varDefType = ANY; // Default type is ANY
+  
+  eat(parser, TOKEN_EQUALS); // =
+
+  varDef->varDefVal = parseStatement(parser, scope, varDef->varDefType); // value;  
 
   varDef->scope = scope; // Add it to the scope
 
@@ -319,7 +391,7 @@ AST_T* parseID(parser_T* parser, scope_T* scope) {
   if (strcmp(parser->currentToken->val, "let") == 0)
     return parseVarDef(parser, scope);
   
-  if(strcmp(parser->currentToken->val, "func") == 0)
+  if (strcmp(parser->currentToken->val, "func") == 0)
     return parseFuncDef(parser, scope);
   
   return parseVar(parser, scope);

@@ -25,7 +25,7 @@ parser_T* initParser(lexer_T* lexer);
 
 void eat(parser_T* parser, int tokenType);
 
-AST_T* parseStatement(parser_T* parser, scope_T* scope);
+AST_T* parseStatement(parser_T* parser, scope_T* scope, int varType);
 
 AST_T* parseStatements(parser_T* parser, scope_T* scope);
 

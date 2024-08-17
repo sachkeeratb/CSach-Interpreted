@@ -22,7 +22,7 @@ This project is designed to help me (and potentially others) learn the fundament
 
 - **Variable Declaration and Printing**: You can create variables and print their values.
 - **Function Declaration and Calling**: You can create your own functions with custom arguments and call them in their scope.
-- **Variable types**: Long integers, strings, and characters. Explicit annotation coming soon.
+- **Variable types**: Long integers, strings, and characters with explicit type annotations.
 - **Math**: You can use integers. Basic math features are implemented. Other than parentheses, the order of operations is respected.
 
 ## Getting Started

@@ -42,15 +42,11 @@ token_T* getNextToken(lexer_T* lexer) {
     // Identifiers
 		if (isalpha(lexer->c)) 
 			return collectID(lexer);
-
-    // The beginning of a stirng
-    if (lexer->c == '"') 
-      return collectString(lexer);
-    
-    if (lexer->c == '\'') 
-      return collectChar(lexer);
     
     switch (lexer->c) {
+      case '"': return collectString(lexer); break;
+      case '\'': return collectChar(lexer); break;
+      case ':': return advanceWithToken(lexer, initToken(TOKEN_COLON, getCurrentCharAsString(lexer))); break;;
       case '=': return advanceWithToken(lexer, initToken(TOKEN_EQUALS, getCurrentCharAsString(lexer))); break;
       case ';': return advanceWithToken(lexer, initToken(TOKEN_SEMI, getCurrentCharAsString(lexer))); break;
       case '(': return advanceWithToken(lexer, initToken(TOKEN_LPAREN, getCurrentCharAsString(lexer))); break;
