@@ -1,6 +1,6 @@
 let greeting = "Hello, " + "world!";
 
-let a = 2 + 2 * 3 + 2 / 2 + 4^2;
+let a: int = 2 + 2 * 3 + 2 / 2 + 4^2;
 
 func main() {
   println(greeting);

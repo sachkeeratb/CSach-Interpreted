@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 #include <stdlib.h>
+#include <stdbool.h>
 
 /**
  * @brief An AST, or Abstract Syntax Tree, is a data structure commonly used in programming language compilers and interpreters.
@@ -15,7 +16,8 @@ typedef struct AST_STRUCT {
     AST_FUNCTION_CALL, // name(args);
     AST_STRING, // "val"
     AST_CHAR, // 'a'
-    AST_INT, // 1234
+    AST_INT, // 1234,
+    AST_BOOL, // 1234
     AST_COMPOUND, // { statements }
     AST_BINOP, // Binary Operator
     AST_STATEMENT_RETURN, // ret val;
@@ -49,6 +51,9 @@ typedef struct AST_STRUCT {
 
   // For characters
   char charVal;
+
+  // For bools
+  bool boolVal;
 
   // For ints
   long intVal;

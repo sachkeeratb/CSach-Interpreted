@@ -102,7 +102,12 @@ AST_T* parseStatement(parser_T* parser, scope_T* scope, int type) {
       break;
 
     case BOOL:
-      printf("Booleans are currently unsupported.\n"); break;
+      if (parser->currentToken->type != TOKEN_ID) {
+        printf("Expected a boolean, but got `%s` with type %d\n", (char*) parser->currentToken->val, parser->currentToken->type);
+        exit(1);
+      }
+      return parseBool(parser, scope); 
+      break;
 
     case STRING:
       if (parser->currentToken->type != TOKEN_STRING) {
@@ -319,6 +324,27 @@ AST_T* parseString(parser_T* parser, scope_T* scope) {
   return string;
 }
 
+AST_T* parseBool(parser_T* parser, scope_T* scope) {
+  // Parse a boolean and create an AST node with the boolean as the value
+  AST_T* boolean = initAST(AST_BOOL);
+
+  if (strcmp(parser->currentToken->val, "false") == 0)
+    boolean->boolVal = false;
+  else if (strcmp(parser->currentToken->val, "true") == 0)
+    boolean->boolVal = true;
+  else {
+    printf("Expected a boolean, but got `%s` with type %d\n", (char*) parser->currentToken->val, parser->currentToken->type);
+    exit(1);
+  }
+  
+  // Move past the boolean
+  eat(parser, TOKEN_ID);
+
+  boolean->scope = scope;
+
+  return boolean;
+}
+
 AST_T* parseChar(parser_T* parser, scope_T* scope) {
   // Parse a character and create an AST node with the character as the value
   AST_T* character = initAST(AST_CHAR);
@@ -352,7 +378,7 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   eat(parser, TOKEN_INT);
 
   // Check if there are more operations to perform on the number
-  int keepRepeat = 1;
+  bool keepRepeat = true;
   while (keepRepeat) {
     switch (parser->currentToken->type) {
       // If the token is a valid operation token, push it to the operation list and push the number to the number list
@@ -370,7 +396,7 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
         break;
 
       default:
-        keepRepeat = 0;
+        keepRepeat = false;
         break;
     }    
   }
@@ -393,6 +419,9 @@ AST_T* parseID(parser_T* parser, scope_T* scope) {
   
   if (strcmp(parser->currentToken->val, "func") == 0)
     return parseFuncDef(parser, scope);
+
+  if (strcmp(parser->currentToken->val, "true") == 0 || strcmp(parser->currentToken->val, "false") == 0)
+    return parseBool(parser, scope);
   
   return parseVar(parser, scope);
 }

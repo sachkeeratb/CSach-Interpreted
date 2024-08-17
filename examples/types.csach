@@ -3,3 +3,6 @@ let string: str = "Hello,";
 
 print(string, num);
 println("!");
+
+let bool = true;
+print(bool);

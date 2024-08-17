@@ -16,6 +16,7 @@ static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
       case AST_INT: printf("%ld ", visited->intVal); break;
       case AST_CHAR: printf("%c ", visited->charVal); break;
+      case AST_BOOL: printf("%s ", visited->boolVal ? "true" : "false"); break;
       default: printf("%p ", (void*) visited); break;
     }
 
@@ -27,6 +28,7 @@ static AST_T* builtinFuncPrint(AST_T** args, int argsSize) {
     case AST_STRING: printf("%s", visited->stringVal); break;
     case AST_INT: printf("%ld", visited->intVal); break;
     case AST_CHAR: printf("%c", visited->charVal); break;
+    case AST_BOOL: printf("%s", visited->boolVal ? "true" : "false"); break;
     default: printf("%p", (void*) visited); break;
   }
 
@@ -50,6 +52,7 @@ static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
       case AST_STRING: printf("%s ", visited->stringVal); break;
       case AST_INT: printf("%ld ", visited->intVal); break;
       case AST_CHAR: printf("%c ", visited->charVal); break;
+      case AST_BOOL: printf("%s ", visited->boolVal ? "true" : "false"); break;
       default: printf("%p ", (void*) visited); break;
     }
 
@@ -61,6 +64,7 @@ static AST_T* builtinFuncPrintln(AST_T** args, int argsSize) {
     case AST_STRING: printf("%s\n", visited->stringVal); break;
     case AST_INT: printf("%ld\n", visited->intVal); break;
     case AST_CHAR: printf("%c\n", visited->charVal); break;
+    case AST_BOOL: printf("%s\n", visited->boolVal ? "true" : "false"); break;
     default: printf("%p\n", (void*) visited); break;
   }
 

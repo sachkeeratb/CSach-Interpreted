@@ -22,7 +22,7 @@ This project is designed to help me (and potentially others) learn the fundament
 
 - **Variable Declaration and Printing**: You can create variables and print their values.
 - **Function Declaration and Calling**: You can create your own functions with custom arguments and call them in their scope.
-- **Variable types**: Long integers, strings, and characters with explicit type annotations.
+- **Variable types**: Long integers, strings, characters, and booleans with explicit type annotations.
 - **Math**: You can use integers. Basic math features are implemented. Other than parentheses, the order of operations is respected.
 
 ## Getting Started
@@ -112,7 +112,7 @@ Here's an example of how to use the current features
 ```
 let greeting = "Hello, " + "world!";
 
-let a = 2 + 2 * 3 + 2 / 2 + 4^2;
+let a: int = 2 + 2 * 3 + 2 / 2 + 4^2;
 
 func main() {
   println(greeting);
