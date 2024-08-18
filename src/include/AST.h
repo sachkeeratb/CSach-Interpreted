@@ -17,12 +17,22 @@ typedef struct AST_STRUCT {
     AST_STRING, // "val"
     AST_CHAR, // 'a'
     AST_INT, // 1234,
-    AST_BOOL, // 1234
+    AST_BOOL, // true/false
     AST_COMPOUND, // { statements }
     AST_BINOP, // Binary Operator
     AST_STATEMENT_RETURN, // ret val;
     AST_NOOP // No operation
   } type;
+
+  enum {
+    VOID,
+    INT,
+    FLOAT,
+    CHAR,
+    BOOL,
+    STRING,
+    ANY
+  } varType;
 
   struct SCOPE_STRUCT* scope;
 
@@ -64,5 +74,7 @@ typedef struct AST_STRUCT {
 } AST_T;
 
 AST_T* initAST(int type);
+
+size_t varTypeToASTType(size_t varType);
 
 #endif

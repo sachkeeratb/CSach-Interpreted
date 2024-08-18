@@ -7,3 +7,13 @@ AST_T* initAST(int type) {
 
   return ast;
 }
+
+size_t varTypeToASTType(size_t varType) {
+  switch (varType) {
+    case INT: return AST_INT;
+    case CHAR: return AST_CHAR;
+    case BOOL: return AST_BOOL;
+    case STRING: return AST_STRING;
+    default: return AST_NOOP;
+  }
+}

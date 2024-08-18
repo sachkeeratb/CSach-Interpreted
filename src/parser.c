@@ -4,17 +4,6 @@
 #include <math.h>
 #include "include/parser.h"
 
-// For variable types
-enum {
-  VOID,
-  INT,
-  FLOAT,
-  CHAR,
-  BOOL,
-  STRING,
-  ANY
-} varType;
-
 parser_T* initParser(lexer_T* lexer) {
   parser_T* parser = calloc(1, sizeof(parser_T)); // Allocate memory for the parser
   parser->lexer = lexer; // Set the lexer of the parser
@@ -147,6 +136,7 @@ AST_T* parseStatements(parser_T* parser, scope_T* scope) {
     // If there is another statement, increase the size of the compound and reallocate memory for the compound's values
     if (statement) {
       compound->compoundSize += 1;    
+
       compound->compoundVal = realloc(
         compound->compoundVal, 
         (compound->compoundSize + 1) * sizeof(struct AST_STRUCT)
@@ -177,7 +167,9 @@ AST_T* parseFuncDef(parser_T* parser, scope_T* scope) {
   if (parser->currentToken->type != TOKEN_RPAREN) {
     // The arguments of the function
     funcDef->funcDefArgs = calloc(1, sizeof(struct AST_STRUCT*));
+
     AST_T* arg = parseVar(parser, scope);
+
     funcDef->funcDefArgsSize += 1;
     funcDef->funcDefArgs[funcDef->funcDefArgsSize - 1] = arg;
 
@@ -195,6 +187,7 @@ AST_T* parseFuncDef(parser_T* parser, scope_T* scope) {
     }
   }
 
+
   eat(parser, TOKEN_RPAREN); // )
   eat(parser, TOKEN_LBRACE); // {  
 
@@ -204,6 +197,7 @@ AST_T* parseFuncDef(parser_T* parser, scope_T* scope) {
   eat(parser, TOKEN_RBRACE); // }
 
   funcDef->scope = scope;
+  visitFuncDef(funcDef);
 
   return funcDef;
 }
@@ -211,7 +205,19 @@ AST_T* parseFuncDef(parser_T* parser, scope_T* scope) {
 AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
   // Parse a function call and create an AST node with the function name and arguments as the value
   AST_T* funcCall = initAST(AST_FUNCTION_CALL);
-  funcCall->funcCallName = parser->prevToken->val;
+  funcCall->funcCallName = (char*) parser->prevToken->val;
+
+  bool isBuiltIn = false;
+  if (strcmp(funcCall->funcCallName, "print") == 0 || strcmp(funcCall->funcCallName, "println") == 0 || strcmp(funcCall->funcCallName, "clear") == 0 || strcmp(funcCall->funcCallName, "exit") == 0) 
+    isBuiltIn = true;
+  
+    
+  AST_T* funcDef = scopeGetFuncDef(scope, funcCall->funcCallName);
+  
+  if (!funcDef && !isBuiltIn) {
+    printf("Undefined function `%s`\n", funcCall->funcCallName);
+    exit(1);
+  }
 
   eat(parser, TOKEN_LPAREN);
 
@@ -222,6 +228,9 @@ AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
     AST_T* statement = parseStatement(parser, scope, ANY);
     funcCall->funcCallArgs[0] = statement;
     funcCall->funcCallArgsSize += 1;
+
+    if (!isBuiltIn)
+      funcDef->funcDefArgs[0]->type = varTypeToASTType(statement->type);
 
     // Go through the arguments of the function
     while(parser->currentToken->type == TOKEN_COMMA) {
@@ -235,7 +244,15 @@ AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
         (funcCall->funcCallArgsSize + 1) * sizeof(struct AST_STRUCT)
       );
 
+      if (!isBuiltIn && funcCall->funcCallArgsSize > funcDef->funcDefArgsSize) {
+        printf("Invalid amount of arguments passed into function `%s`\n", funcCall->funcCallName);
+        exit(1);
+      }
+
       funcCall->funcCallArgs[funcCall->funcCallArgsSize - 1] = statement;
+
+      if (!isBuiltIn)
+        funcDef->funcDefArgs[funcCall->funcCallArgsSize - 1]->type = varTypeToASTType(statement->type);
     }
   }
 
@@ -308,11 +325,19 @@ AST_T* parseNewVarDef(parser_T* parser, scope_T* scope) {
 
 AST_T* parseVar(parser_T* parser, scope_T* scope) {
   // Parse a variable and create an AST node with the variable name as the value
-  char* tokenVal = parser->currentToken->val;
+  char* tokenVal = (char*) parser->currentToken->val;
   eat(parser, TOKEN_ID); // variable name
+
+  // If a variable has a number attached to it (e.g. var1, var2, var3, etc.)
+  if (parser->currentToken->type == TOKEN_INT) {
+    char* buff = (char*) malloc(strlen(tokenVal) + 1);
+    sprintf(buff, "%ld", (intptr_t) parser->currentToken->val);
+    strcat(tokenVal, buff);
+    eat(parser, TOKEN_INT);
+  }
   
   // Parse function arguments
-  if (parser->currentToken->type == TOKEN_LPAREN) 
+  if (parser->currentToken->type == TOKEN_LPAREN)
     return parseFuncCall(parser, scope);
   
   // Create the AST node with its values
@@ -412,8 +437,8 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
       case TOKEN_MODULO:
         push(&opList, parser->currentToken->type);
         eat(parser, parser->currentToken->type);
-
-        if (scopeGetVarDef(scope, parser->currentToken->val)) {
+        
+        if (parser->currentToken->type == TOKEN_ID && scopeGetVarDef(scope, (char*) parser->currentToken->val)) {
           push(&numList, (intptr_t) scopeGetVarDef(scope, parser->currentToken->val)->varDefVal->intVal);
           eat(parser, TOKEN_ID);
         }
@@ -453,35 +478,6 @@ AST_T* parseID(parser_T* parser, scope_T* scope) {
 
   if (strcmp(parser->currentToken->val, "true") == 0 || strcmp(parser->currentToken->val, "false") == 0)
     return parseBool(parser, scope);
-
-  AST_T* node = initAST(AST_FUNCTION_CALL);
-  node->funcCallName = parser->currentToken->val;
-
-  if (strcmp(parser->currentToken->val, "print") == 0 || strcmp(parser->currentToken->val, "println") == 0 || strcmp(parser->currentToken->val, "clear") == 0 || strcmp(parser->currentToken->val, "exit") == 0){
-    eat(parser, TOKEN_ID);
-    eat(parser, TOKEN_LPAREN);
-    while (parser->currentToken->type != TOKEN_RPAREN) {
-      AST_T* statement = parseStatement(parser, scope, ANY);
-      node->funcCallArgsSize += 1;
-      node->funcCallArgs = realloc(
-        node->funcCallArgs, 
-        (node->funcCallArgsSize + 1) * sizeof(struct AST_STRUCT)
-      );
-      node->funcCallArgs[node->funcCallArgsSize - 1] = statement;
-      if (parser->currentToken->type == TOKEN_COMMA)
-        eat(parser, TOKEN_COMMA);
-    }
-    eat(parser, TOKEN_RPAREN);
-
-    if (strcmp(node->funcCallName, "print") == 0)
-      return builtinFuncPrint(node->funcCallArgs, node->funcCallArgsSize);
-    if (strcmp(node->funcCallName, "println") == 0)
-      return builtinFuncPrintln(node->funcCallArgs, node->funcCallArgsSize);
-    if (strcmp(node->funcCallName, "clear") == 0)
-      return builtinFuncClear(node->funcCallArgsSize);
-    if (strcmp(node->funcCallName, "exit") == 0)
-      return builtinFuncExit(node->funcCallArgs, node->funcCallArgsSize);
-  }
   
   return parseVar(parser, scope);
 }

@@ -1,8 +1,9 @@
-let statement = "Nice names!";
+let name = "Sachkeerat Singh Brar";
 
-func doSomething(name1, name2) {
-  println(name1, name2);
-  print(statement);
+func doSomething() {
+  let otherName = "Other Name";
+  println(name, otherName);
 };
 
-doSomething("Sachkeerat", "Other Name");
+doSomething();
+doSomething();

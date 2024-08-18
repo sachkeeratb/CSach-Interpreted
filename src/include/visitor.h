@@ -9,13 +9,13 @@
  *        for each operation you want to perform on the objects.
  */
 
-AST_T* builtinFuncPrint(AST_T** args, int argsSize);
+static AST_T* builtinFuncPrint(AST_T** args, size_t argsSize);
 
-AST_T* builtinFuncPrintln(AST_T** args, int argsSize);
+static AST_T* builtinFuncPrintln(AST_T** args, size_t argsSize);
 
-AST_T* builtinFuncClear(int argsSize);
+static AST_T* builtinFuncClear(size_t argsSize);
 
-AST_T* builtinFuncExit(AST_T** args, int argsSize);
+static AST_T* builtinFuncExit(AST_T** args, size_t argsSize);
 
 AST_T* visit(AST_T* node);
 

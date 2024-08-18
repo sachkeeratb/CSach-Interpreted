@@ -1,0 +1,8 @@
+let statement = "Nice names!";
+
+func doSomething(name1, name2) {
+  println(name1, name2);
+  print(statement);
+};
+
+doSomething("Sachkeerat", "Other Name");

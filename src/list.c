@@ -84,14 +84,12 @@ void evalExponents(list_T** opList, list_T** numList) {
 	// Store the current and previous number and operator nodes
   node_T* currentNum = (*numList)->head;
   node_T* currentOp = (*opList)->head;
-	node_T* prevNum = (void*) 0;
 	node_T* prevOp = (void*) 0;
 
 	// Traverse the operator list while there are still operators
 	while (currentOp) {
 		// If the current operator is not an exponent, move to the next operator
 		if (currentOp->val != TOKEN_POW) {
-			prevNum = currentNum;
 			currentNum = currentNum->next;
 			prevOp = currentOp;
 			currentOp = currentOp->next;
@@ -135,14 +133,12 @@ void evalMD(list_T** opList, list_T** numList) {
   // Store the current and previous number and operator nodes
   node_T* currentNum = (*numList)->head;
   node_T* currentOp = (*opList)->head;
-	node_T* prevNum = (void*) 0;
 	node_T* prevOp = (void*) 0;
 
 	// Traverse the operator list while there are still operators
 	while (currentOp) {
 		// If the current operator is not multiplication, division, or modulo, move to the next operator
 		if (!(currentOp->val == TOKEN_MULTIPLY) && !(currentOp->val == TOKEN_DIVIDE) && !(currentOp->val == TOKEN_MODULO)) {
-			prevNum = currentNum;
 			currentNum = currentNum->next;
 			prevOp = currentOp;
 			currentOp = currentOp->next;
