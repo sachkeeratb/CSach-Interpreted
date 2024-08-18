@@ -128,7 +128,7 @@ AST_T* parseStatements(parser_T* parser, scope_T* scope) {
   compound->scope = scope;  
 
   // Parse the rest of the statements, using a semicolon as the seperator
-  while(parser->currentToken->type == TOKEN_SEMI) {
+  while (parser->currentToken->type == TOKEN_SEMI) {
     eat(parser, TOKEN_SEMI);
 
     AST_T* statement = parseStatement(parser, scope, ANY);
@@ -180,13 +180,12 @@ AST_T* parseFuncDef(parser_T* parser, scope_T* scope) {
       funcDef->funcDefArgs = realloc(
         funcDef->funcDefArgs, 
         funcDef->funcDefArgsSize * sizeof(struct AST_STRUCT*)
-      );
+      );    
 
-      AST_T* arg = parseVar(parser, scope);
+      AST_T* arg = parseVar(parser, scope);   
       funcDef->funcDefArgs[funcDef->funcDefArgsSize - 1] = arg;
     }
   }
-
 
   eat(parser, TOKEN_RPAREN); // )
   eat(parser, TOKEN_LBRACE); // {  
@@ -299,7 +298,7 @@ AST_T* parseVarDef(parser_T* parser, scope_T* scope) {
   varDef->varDefVal = parseStatement(parser, scope, varDef->type); // value;  
 
   varDef->scope = scope; // Add it to the scope
-  scopeAddVarDef(scope, varDef); // Add the variable definition to the scope
+  visitVarDef(varDef);
 
   return varDef;
 }
@@ -452,7 +451,12 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
         push(&opList, parser->currentToken->type);
         eat(parser, parser->currentToken->type);
         
-        if (parser->currentToken->type == TOKEN_ID && scopeGetVarDef(scope, (char*) parser->currentToken->val)) {
+        if (parser->currentToken->type == TOKEN_ID) {
+          if (!scopeGetVarDef(scope, (char*) parser->currentToken->val)) {
+            printf("Variable to perform operation on does not exist.\n");
+            exit(1);
+          }
+
           push(&numList, (intptr_t) scopeGetVarDef(scope, parser->currentToken->val)->varDefVal->intVal);
           eat(parser, TOKEN_ID);
         }

@@ -125,12 +125,6 @@ AST_T* visit(AST_T* node) {
     case AST_STATEMENT_RETURN: printf("Implementing return soon.\n"); exit(1); break;
     default: return node; break;
   }
-
-  // Uncaught statement
-  printf("Uncaught statement of `%d`\n", node->type);
-  exit(1);
-
-  return initAST(AST_NOOP);
 }
 
 AST_T* visitVarDef(AST_T* node) {
@@ -142,9 +136,11 @@ AST_T* visitVarDef(AST_T* node) {
 AST_T* visitVar(AST_T* node) {
   AST_T* varDef = scopeGetVarDef(node->scope, node->varName); // Get the variable definition from the scope
 
-  // If the variable definition is not found, return the node
-  if (!varDef)
-    return node;
+  // If the variable definition is not found, send an error
+  if (!varDef) {
+    printf("Variable `%s` not found.\n", node->varName);
+    exit(1);
+  }
 
   // If the variable definition is found, return its value
   return visit(varDef->varDefVal);
@@ -207,9 +203,19 @@ AST_T* visitFuncCall(AST_T* node) {
 }
 
 AST_T* visitCompound(AST_T* node) {
-  // Go through all the statements in the compound statement
-  for (size_t i = 0; i < node->compoundSize; i++) 
-    visit(node->compoundVal[i]);
+  for (size_t i = 0; i < node->compoundSize; i++) {
+    AST_T* child = node->compoundVal[i];
+    if (child->type == AST_VARIABLE_DEFINITION) {
+      visitVarDef(child);
+    }
+  }
 
-  return initAST(AST_NOOP);
+  for (size_t i = 0; i < node->compoundSize; i++) {
+    AST_T* child = node->compoundVal[i];
+    if (child->type != AST_VARIABLE_DEFINITION) {
+      visit(child);
+    }
+  }
+
+  return node;
 }

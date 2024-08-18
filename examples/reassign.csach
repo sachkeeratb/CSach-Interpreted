@@ -1,5 +1,5 @@
-let a = 3;
+let a = 2;
 println(a);
 
-rnew a = 1 + a;
+rnew a = 3;
 println(a);
