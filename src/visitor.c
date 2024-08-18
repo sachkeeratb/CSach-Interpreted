@@ -13,10 +13,10 @@ static AST_T* builtinFuncPrint(AST_T** args, size_t argsSize) {
   while (i < argsSize - 1) {
     AST_T* visited = visit(args[i]);
     switch (visited->type) {
-      case AST_STRING: printf("%s ", visited->stringVal); break;
-      case AST_INT: printf("%ld ", visited->intVal); break;
-      case AST_CHAR: printf("%c ", visited->charVal); break;
-      case AST_BOOL: printf("%s ", visited->boolVal ? "true" : "false"); break;
+      case STRING: printf("%s ", visited->stringVal); break;
+      case INT: printf("%ld ", visited->intVal); break;
+      case CHAR: printf("%c ", visited->charVal); break;
+      case BOOL: printf("%s ", visited->boolVal ? "true" : "false"); break;
       default: printf("%p ", (void*) visited); break;
     }
 
@@ -25,10 +25,10 @@ static AST_T* builtinFuncPrint(AST_T** args, size_t argsSize) {
 
   AST_T* visited = visit(args[i]);
   switch (visited->type) {
-    case AST_STRING: printf("%s", visited->stringVal); break;
-    case AST_INT: printf("%ld", visited->intVal); break;
-    case AST_CHAR: printf("%c", visited->charVal); break;
-    case AST_BOOL: printf("%s", visited->boolVal ? "true" : "false"); break;
+    case STRING: printf("%s", visited->stringVal); break;
+    case INT: printf("%ld", visited->intVal); break;
+    case CHAR: printf("%c", visited->charVal); break;
+    case BOOL: printf("%s", visited->boolVal ? "true" : "false"); break;
     default: printf("%p", (void*) visited); break;
   }
 
@@ -49,10 +49,10 @@ static AST_T* builtinFuncPrintln(AST_T** args, size_t argsSize) {
   while (i < argsSize - 1) {
     AST_T* visited = visit(args[i]);
     switch (visited->type) {
-      case AST_STRING: printf("%s ", visited->stringVal); break;
-      case AST_INT: printf("%ld ", visited->intVal); break;
-      case AST_CHAR: printf("%c ", visited->charVal); break;
-      case AST_BOOL: printf("%s ", visited->boolVal ? "true" : "false"); break;
+      case STRING: printf("%s ", visited->stringVal); break;
+      case INT: printf("%ld ", visited->intVal); break;
+      case CHAR: printf("%c ", visited->charVal); break;
+      case BOOL: printf("%s ", visited->boolVal ? "true" : "false"); break;
       default: printf("%p ", (void*) visited); break;
     }
 
@@ -61,10 +61,10 @@ static AST_T* builtinFuncPrintln(AST_T** args, size_t argsSize) {
 
   AST_T* visited = visit(args[i]);
   switch (visited->type) {
-    case AST_STRING: printf("%s\n", visited->stringVal); break;
-    case AST_INT: printf("%ld\n", visited->intVal); break;
-    case AST_CHAR: printf("%c\n", visited->charVal); break;
-    case AST_BOOL: printf("%s\n", visited->boolVal ? "true" : "false"); break;
+    case STRING: printf("%s\n", visited->stringVal); break;
+    case INT: printf("%ld\n", visited->intVal); break;
+    case CHAR: printf("%c\n", visited->charVal); break;
+    case BOOL: printf("%s\n", visited->boolVal ? "true" : "false"); break;
     default: printf("%p\n", (void*) visited); break;
   }
 
@@ -102,7 +102,7 @@ static AST_T* builtinFuncExit(AST_T** args, size_t argsSize) {
   AST_T* visited = visit(args[0]);
 
   // If the argument isn't an integer, print an error message and exit
-  if (visited->type != AST_INT) {
+  if (visited->type != INT) {
     printf("Invalid argument passed into function `exit`\n");
     exit(1);
   }
@@ -192,7 +192,7 @@ AST_T* visitFuncCall(AST_T* node) {
 
     // Give the variable its value
     varDef->varDefVal = val;
-    varDef->type = varTypeToASTType(val->type);
+    varDef->type = val->type;
     
     // Copy the name of the defined argument into the new variable definition
     varDef->varDefVarName = calloc(strlen(var->varName) + 1, sizeof(char));

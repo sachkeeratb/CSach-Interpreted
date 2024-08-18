@@ -14,36 +14,29 @@ typedef struct AST_STRUCT {
     AST_VARIABLE, // var
     AST_FUNCTION_DEFINITION, // func name(args) { body };
     AST_FUNCTION_CALL, // name(args);
-    AST_STRING, // "val"
-    AST_CHAR, // 'a'
-    AST_INT, // 1234,
-    AST_BOOL, // true/false
+    STRING, // "val"
+    VOID, // void
+    BOOL, // true/false
+    ANY, // Any type
+    CHAR, // 'a'
+    INT, // 1234
+    FLOAT, // 12.34
     AST_COMPOUND, // { statements }
     AST_BINOP, // Binary Operator
     AST_STATEMENT_RETURN, // ret val;
     AST_NOOP // No operation
   } type;
 
-  enum {
-    VOID,
-    INT,
-    FLOAT,
-    CHAR,
-    BOOL,
-    STRING,
-    ANY
-  } varType;
-
   struct SCOPE_STRUCT* scope;
 
   // For variable definitions
   char* varDefVarName;
   struct AST_STRUCT* varDefVal;
-  int varDefType;
 
   // For variable references
   char* varName;
   struct AST_STRUCT* varVal;
+  bool isInitialized;
 
   // For function definitions
   char* funcDefName;
@@ -74,7 +67,5 @@ typedef struct AST_STRUCT {
 } AST_T;
 
 AST_T* initAST(int type);
-
-size_t varTypeToASTType(size_t varType);
 
 #endif

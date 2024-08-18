@@ -230,7 +230,7 @@ AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
     funcCall->funcCallArgsSize += 1;
 
     if (!isBuiltIn)
-      funcDef->funcDefArgs[0]->type = varTypeToASTType(statement->type);
+      funcDef->funcDefArgs[0]->type = statement->type;
 
     // Go through the arguments of the function
     while(parser->currentToken->type == TOKEN_COMMA) {
@@ -252,7 +252,7 @@ AST_T* parseFuncCall(parser_T* parser, scope_T* scope) {
       funcCall->funcCallArgs[funcCall->funcCallArgsSize - 1] = statement;
 
       if (!isBuiltIn)
-        funcDef->funcDefArgs[funcCall->funcCallArgsSize - 1]->type = varTypeToASTType(statement->type);
+        funcDef->funcDefArgs[funcCall->funcCallArgsSize - 1]->type = statement->type;
     }
   }
 
@@ -274,17 +274,17 @@ AST_T* parseVarDef(parser_T* parser, scope_T* scope) {
   if (parser->currentToken->type == TOKEN_COLON) {
     eat(parser, TOKEN_COLON); // :
     if (strcmp(parser->currentToken->val, "int") == 0)
-      varDef->varDefType = INT;
+      varDef->type = INT;
     else if (strcmp(parser->currentToken->val, "float") == 0)
-      varDef->varDefType = FLOAT;
+      varDef->type = FLOAT;
     else if (strcmp(parser->currentToken->val, "char") == 0)
-      varDef->varDefType = CHAR;
+      varDef->type = CHAR;
     else if (strcmp(parser->currentToken->val, "bool") == 0)
-      varDef->varDefType = BOOL;
+      varDef->type = BOOL;
     else if (strcmp(parser->currentToken->val, "str") == 0)
-      varDef->varDefType = STRING;
+      varDef->type = STRING;
     else if (strcmp(parser->currentToken->val, "any") == 0)
-      varDef->varDefType = ANY;
+      varDef->type = ANY;
     else {
       printf("Unknown type `%s`\n", (char*) parser->currentToken->val);
       exit(1);
@@ -292,11 +292,11 @@ AST_T* parseVarDef(parser_T* parser, scope_T* scope) {
     eat(parser, TOKEN_ID); // type
   }
   else 
-    varDef->varDefType = ANY; // Default type is ANY
+    varDef->type = ANY; // Default type is ANY
   
   eat(parser, TOKEN_EQUALS); // =
 
-  varDef->varDefVal = parseStatement(parser, scope, varDef->varDefType); // value;  
+  varDef->varDefVal = parseStatement(parser, scope, varDef->type); // value;  
 
   varDef->scope = scope; // Add it to the scope
   scopeAddVarDef(scope, varDef); // Add the variable definition to the scope
@@ -318,7 +318,7 @@ AST_T* parseNewVarDef(parser_T* parser, scope_T* scope) {
 
   eat(parser, TOKEN_EQUALS); // =
 
-  varDef->varDefVal = parseStatement(parser, scope, varDef->varDefType); // value;  
+  varDef->varDefVal = parseStatement(parser, scope, varDef->type); // value;  
 
   return varDef;
 }
@@ -350,19 +350,33 @@ AST_T* parseVar(parser_T* parser, scope_T* scope) {
 
 AST_T* parseString(parser_T* parser, scope_T* scope) {
   // Parse a string and create an AST node with the string as the value
-  AST_T* string = initAST(AST_STRING);
+  AST_T* string = initAST(STRING);
   string->stringVal = parser->currentToken->val;
   
   eat(parser, TOKEN_STRING);
 
-  while(parser->currentToken->type == TOKEN_PLUS) {
+  while (parser->currentToken->type == TOKEN_PLUS) {
     eat(parser, TOKEN_PLUS);
-    if (parser->currentToken->type != TOKEN_STRING) {
-      printf("Concantinating non-string types with strings is currently unsupported.\n");
-      exit(1);
+    switch (parser->currentToken->type) {
+      case TOKEN_STRING:
+        string->stringVal = strcat(string->stringVal, (char*) parser->currentToken->val);
+        eat(parser, TOKEN_STRING);
+        break;
+
+      case TOKEN_ID:
+        if (!scopeGetVarDef(scope, (char*) parser->currentToken->val)) {
+          printf("Variable to concatenate does not exist.\n");
+          exit(1);
+        }
+
+        string->stringVal = strcat(string->stringVal, (char*) scopeGetVarDef(scope, parser->currentToken->val)->varDefVal->stringVal);
+        eat(parser, TOKEN_ID);
+        break;
+        
+      default:
+        printf("Concantinating non-string types with strings is currently unsupported.\n");
+        exit(1);
     }
-    string->stringVal = strcat(string->stringVal, (char*) parser->currentToken->val);
-    eat(parser, TOKEN_STRING);
   }
 
   string->scope = scope;
@@ -372,7 +386,7 @@ AST_T* parseString(parser_T* parser, scope_T* scope) {
 
 AST_T* parseBool(parser_T* parser, scope_T* scope) {
   // Parse a boolean and create an AST node with the boolean as the value
-  AST_T* boolean = initAST(AST_BOOL);
+  AST_T* boolean = initAST(BOOL);
 
   if (strcmp(parser->currentToken->val, "false") == 0)
     boolean->boolVal = false;
@@ -393,7 +407,7 @@ AST_T* parseBool(parser_T* parser, scope_T* scope) {
 
 AST_T* parseChar(parser_T* parser, scope_T* scope) {
   // Parse a character and create an AST node with the character as the value
-  AST_T* character = initAST(AST_CHAR);
+  AST_T* character = initAST(CHAR);
   character->charVal = *(char*) parser->currentToken->val;
   
   // Move past the character
@@ -455,7 +469,7 @@ AST_T* parseIntExpr(parser_T* parser, scope_T* scope) {
   }
 
   // Initialize the AST node with the integer value
-  AST_T* num = initAST(AST_INT);
+  AST_T* num = initAST(INT);
 
   // Evaluate the expression and assign the value to the AST node
   num->intVal = eval(&opList, &numList);
